@@ -11,7 +11,7 @@ Enterprise Systems · Cloud · AI Services
 <br>
 <!-- 자비스 톤 통계 카드 (배경 0a1320 / 포인트 38bdf8) -->
 <div align="left">
-<img height="160" src="https://github-readme-stats.vercel.app/api?username=kokwangtae&show_icons=true&hide_border=true&bg_color=0a1320&title_color=38bdf8&icon_color=38bdf8&text_color=dce9f5" alt="GitHub Stats" />
+<img height="160" src="https://github-readme-stats.vercel.app/api?username=kwangtaeko&show_icons=true&hide_border=true&bg_color=0a1320&title_color=38bdf8&icon_color=38bdf8&text_color=dce9f5" alt="GitHub Stats" />
 <img height="160" src="https://github-readme-stats.vercel.app/api/top-langs/?username=kokwangtae&layout=compact&hide_border=true&bg_color=0a1320&title_color=38bdf8&text_color=dce9f5" alt="Top Languages" />
 </div>
 <br>
