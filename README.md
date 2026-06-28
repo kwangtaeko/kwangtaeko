@@ -76,5 +76,8 @@ Building enterprise software, AI-powered applications, and modern web platforms.
 | 🔒 B2B Marketplace — Android | Private | Kotlin · Jetpack Compose |
 | 🔒 Enterprise RAG Chatbot | Private | LangGraph · FastAPI · LLM |
 | 🔒 AI Multi-Agent System (Orchestra) | Private | Claude Code · MCP · Multi-Agent |
+| 🔒 AI Assistant (JARVIS) | Private | Claude Code · Codex · MCP |
+| 📚 lgcns_study | Public | Study |
+| 📚 Stock | Public | Study |
 
 <p align="center"><sub>🔒 Private repositories — 상세 내용은 <a href="https://tonygwangsk.dev">포트폴리오</a> 참고</sub></p>
