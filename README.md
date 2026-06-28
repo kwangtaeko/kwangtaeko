@@ -61,7 +61,7 @@ Building enterprise software, AI-powered applications, and modern web platforms.
 
 **DevOps & Cloud**
 <p>
-<img src="https://skillicons.dev/icons?i=docker,githubactions,git,vercel,nginx,gcp" />
+<img src="https://skillicons.dev/icons?i=docker,githubactions,git,gitlab,vercel,nginx,gcp" />
 <img src="https://img.shields.io/badge/Oracle_Cloud-F80000?style=for-the-badge&logo=oracle&logoColor=white"/>
 </p>
 
