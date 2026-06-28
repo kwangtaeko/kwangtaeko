@@ -7,14 +7,6 @@
 
 <h3 align="center">Full Stack Developer | AI Engineer | Enterprise Systems · Cloud · AI Services</h3>
 
-<br>
-<!-- 자비스 톤 통계 카드 (배경 0a1320 / 포인트 38bdf8) -->
-<div align="left">
-<img height="160" src="https://github-readme-stats.vercel.app/api?username=kwangtaeko&show_icons=true&hide_border=true&bg_color=0a1320&title_color=38bdf8&icon_color=38bdf8&text_color=dce9f5" alt="GitHub Stats" />
-<img height="160" src="https://github-readme-stats.vercel.app/api/top-langs/?username=kwangtaeko&layout=compact&hide_border=true&bg_color=0a1320&title_color=38bdf8&text_color=dce9f5" alt="Top Languages" />
-</div>
-<br>
-
 <p align="center">
 Building enterprise software, AI-powered applications, and modern web platforms.
 </p>
@@ -52,14 +44,16 @@ Building enterprise software, AI-powered applications, and modern web platforms.
 
 **Database**
 <p>
-<img src="https://skillicons.dev/icons?i=postgres,oracle,mysql" />
+<img src="https://skillicons.dev/icons?i=postgres,mysql" />
+<img src="https://img.shields.io/badge/Oracle-F80000?style=for-the-badge&logo=oracle&logoColor=white"/>
 <img src="https://img.shields.io/badge/MS_SQL_Server-CC2927?style=for-the-badge&logo=microsoftsqlserver&logoColor=white"/>
 </p>
 
 **AI**
 <p>
-<img src="https://skillicons.dev/icons?i=openai" />
-<img src="https://img.shields.io/badge/Claude-D97757?style=for-the-badge"/>
+<img src="https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white"/>
+<img src="https://img.shields.io/badge/Claude-D97757?style=for-the-badge&logo=anthropic&logoColor=white"/>
+<img src="https://img.shields.io/badge/Ollama-000000?style=for-the-badge&logo=ollama&logoColor=white"/>
 <img src="https://img.shields.io/badge/LangGraph-5A67D8?style=for-the-badge"/>
 <img src="https://img.shields.io/badge/RAG-6366F1?style=for-the-badge"/>
 <img src="https://img.shields.io/badge/MCP-6366F1?style=for-the-badge"/>
