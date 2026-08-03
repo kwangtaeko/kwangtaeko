@@ -69,16 +69,23 @@ Building enterprise software, AI-powered applications, and modern web platforms.
 
 ## 📂 Projects
 
-| Project | Visibility | Tech |
-|---------|:----------:|------|
-| 🌐 Portfolio Website | Public | Next.js · TypeScript |
-| 🔒 Enterprise Wiki Platform | Private | Next.js · Spring Boot · PostgreSQL · RAG · GCP |
-| 🔒 B2B Marketplace — Web/App | Private | Next.js · React Native · Spring Boot · PostgreSQL |
-| 🔒 B2B Marketplace — Android | Private | Kotlin · Jetpack Compose |
-| 🔒 Enterprise RAG Chatbot | Private | LangGraph · FastAPI · LLM |
-| 🔒 AI Multi-Agent System (Orchestra) | Private | Claude Code · MCP · Multi-Agent |
-| 🔒 AI Assistant (JARVIS) | Private | Claude Code · Codex · MCP |
-| 📚 lgcns_study | Public | Study |
-| 📚 Stock | Public | Study |
+| Project | Repository | Visibility | Live | Tech |
+|---------|------------|:----------:|------|------|
+| 🌐 Portfolio Website | `portfolio` | 🔒 Private | [tonygwangsk.dev](https://tonygwangsk.dev) | Next.js · TypeScript · CSS Modules |
+| 🎭 Actor Official Website | `mj-filmography` | 🔒 Private | [mj-filmography.vercel.app](https://mj-filmography.vercel.app) | Next.js · React 19 · Zod · shadcn/ui |
+| 🏢 Enterprise Wiki Platform | `wiki-project` | 🔒 Private | — | Next.js · Spring Boot · PostgreSQL · RAG · GCP |
+| 🛒 B2B Marketplace — Web/App | `foodindustry` | 🔒 Private | — | Next.js · React Native · Spring Boot · PostgreSQL |
+| 🤖 Enterprise RAG Chatbot | `chatbot` | 🔒 Private | — | LangGraph · FastAPI · LLM |
+| 🦾 AI Assistant (JARVIS) | `tg-jarvis` | 🔒 Private | — | Claude Code · Codex · MCP |
+| 💳 Fintech App + Mock PG | `TG-Nova` | 🔒 Private | — | Kotlin · Jetpack Compose · Spring Boot · jOOQ · PostgreSQL |
+| 🔐 SSO Portal & Satellite Gates | `tg-launcher` | 🔒 Private | — | Next.js · next-auth · TOTP · JWT · Edge Middleware |
+| 📡 Auto-Updating Schedule Dashboard | `tg-specagent` | 🔒 Private | — | Claude API · GitHub Actions · Node |
+| 📖 Source-Grounded Docs Generator | `tg-docs` | 🔒 Private | — | Next.js · YAML · Static Analysis |
+| 🗂️ Personal Knowledge Archive | `tg-atlas` | 🔒 Private | — | Static HTML · Vanilla JS · Edge Middleware |
+| 🧳 Personal Records & Budget | `our-journey` | 🔒 Private | — | Next.js · React 19 · Tailwind · JSON |
+| 📈 Stock | `stock` | 🔒 Private | — | Study |
+| 📚 LG CNS Study | [`lgcns_study`](https://github.com/kwangtaeko/lgcns_study) | 🌐 Public | — | Study |
+| 👤 Profile | [`kwangtaeko`](https://github.com/kwangtaeko/kwangtaeko) | 🌐 Public | — | This README |
 
-<p align="center"><sub>🔒 Private repositories — 상세 내용은 <a href="https://tonygwangsk.dev">포트폴리오</a> 참고</sub></p>
+<p align="center"><sub><b>Visibility</b> 는 저장소 공개 여부입니다. <b>Live</b> 가 있는 항목은 저장소가 비공개여도 사이트는 열려 있습니다.</sub></p>
+<p align="center"><sub>🔒 비공개 저장소의 아키텍처·구현 상세는 <a href="https://tonygwangsk.dev">포트폴리오</a>에 정리해 두었습니다.</sub></p>
