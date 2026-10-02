@@ -1,0 +1,45 @@
+name: Update README
+
+# 스타 수 · 통계 타일 · 히어로의 플러그인 상태를 6시간마다 다시 그린다.
+# 정각을 피해 17분에 돈다 — 정각에는 Actions 대기열이 몰린다.
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/README.template.md"
+      - ".github/repos.json"
+      - ".github/scripts/**"
+      - ".github/workflows/update-readme.yml"
+
+concurrency:
+  group: update-readme
+  cancel-in-progress: false
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Regenerate README and assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 .github/scripts/update_readme.py
+
+      - name: Commit if changed
+        run: |
+          git add README.md assets
+          if git diff --cached --quiet; then
+            echo "README unchanged"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: refresh README stats and assets"
+          git push
