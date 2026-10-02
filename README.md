@@ -79,7 +79,7 @@
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/section-graph.svg?v=7e6b280d" alt="commits — private ones included" />
 
 <p align="center">
-  <img height="170" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/stat-tiles.svg?v=df4f39e9" alt="TGX stats" />
+  <img height="170" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/stat-tiles.svg?v=53d1e721" alt="TGX stats" />
   <img height="170" src="https://streak-stats.demolab.com?user=kwangtaeko&hide_border=true&background=100E0D&ring=FB923C&fire=FB923C&currStreakLabel=FB923C&currStreakNum=F2E9E3&sideNums=F2E9E3&sideLabels=A99A90&dates=6F625A&stroke=332B26" alt="streak" />
 </p>
 
