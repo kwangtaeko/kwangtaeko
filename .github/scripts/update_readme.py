@@ -5,11 +5,15 @@
   1. assets/ 의 SVG 를 전부 다시 찍는다(assets.py).
   2. .github/repos.json 의 공개 저장소 스타 수를 조회해 카드와 히어로 알약에 넣는다.
      저장소가 아직 없으면(404) "coming soon" 으로 그린다 — 실패로 치지 않는다.
-  3. GraphQL 로 공개 스타 합 · 공개 저장소 수 · 1년 기여 · 활동 일수를 받아 통계 타일을 그린다.
-  4. 자산 주소에 내용 해시를 붙여(?v=) GitHub 이미지 캐시가 옛 그림을 붙들고 있지 않게 한다.
+  3. GraphQL 로 기여 달력을 받아 통계 타일 · 31일 꺾은선 · 연속 기록을 직접 그린다.
+     예전엔 꺾은선과 연속 기록을 외부 무료 서비스에서 받아 왔는데, 그쪽 한도에
+     걸리면 README 에 깨진 그림만 남았다. 이제 남의 서버에 기대지 않는다.
+  4. 카드도 SVG 로 그린다. GitHub 은 README 의 색·글꼴을 지워서 HTML 표로는
+     카드 디자인을 맞출 수 없다.
+  5. 자산 주소에 내용 해시를 붙여(?v=) GitHub 이미지 캐시가 옛 그림을 붙들고 있지 않게 한다.
 
-네트워크가 실패하면 이전에 그려 둔 히어로와 통계 타일을 그대로 둔다 — 6시간마다
-도는 작업이 한 번 실패했다고 README 숫자가 '—' 로 돌아가면 안 된다.
+네트워크가 실패하면 이전에 그려 둔 히어로 · 공개 카드 · 통계 그림을 그대로 둔다 —
+6시간마다 도는 작업이 한 번 실패했다고 README 숫자가 '—' 로 돌아가면 안 된다.
 
 외부 패키지 없이 표준 라이브러리만 쓴다(러너에 아무것도 설치하지 않으려고).
 
@@ -41,9 +45,6 @@ REPOS = ROOT / ".github" / "repos.json"
 README = ROOT / "README.md"
 
 RAW = "https://raw.githubusercontent.com/{owner}/{owner}/main/assets/{name}?v={ver}"
-SHIELD = "https://img.shields.io/badge/{label}-{msg}-{color}?style=flat&labelColor=100E0D"
-STAR = "%E2%98%85"  # ★
-DOT = "%E2%97%8F"  # ●
 
 
 # ── GitHub API ────────────────────────────────────────────────────
@@ -82,7 +83,7 @@ query($login: String!) {
     contributionsCollection {
       contributionCalendar {
         totalContributions
-        weeks { contributionDays { contributionCount } }
+        weeks { contributionDays { date contributionCount } }
       }
     }
   }
@@ -90,7 +91,8 @@ query($login: String!) {
 """
 
 
-def fetch_stats(owner: str, token: str | None) -> dict[str, str] | None:
+def fetch_stats(owner: str, token: str | None) -> dict | None:
+    """{'tiles': {...}, 'days': [(date, count), ...]} — 실패하면 None."""
     if not token:
         return None
     status, data = _request("https://api.github.com/graphql", token, {"query": STATS_QUERY, "variables": {"login": owner}})
@@ -102,12 +104,18 @@ def fetch_stats(owner: str, token: str | None) -> dict[str, str] | None:
         return None
     repos = user["repositories"]
     cal = user["contributionsCollection"]["contributionCalendar"]
-    days = [d["contributionCount"] for w in cal["weeks"] for d in w["contributionDays"]]
+    days = [(d["date"], d["contributionCount"]) for w in cal["weeks"] for d in w["contributionDays"]]
+    days.sort()
+    today = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
+    days = [d for d in days if d[0] <= today]
     return {
-        "stars": compact(sum(n["stargazerCount"] for n in repos["nodes"])),
-        "repos": str(repos["totalCount"]),
-        "contrib": compact(cal["totalContributions"]),
-        "active": str(sum(1 for c in days if c > 0)),
+        "tiles": {
+            "stars": compact(sum(n["stargazerCount"] for n in repos["nodes"])),
+            "repos": str(repos["totalCount"]),
+            "contrib": compact(cal["totalContributions"]),
+            "active": str(sum(1 for _, c in days if c > 0)),
+        },
+        "days": days,
     }
 
 
@@ -123,41 +131,12 @@ def ver(text: str) -> str:
     return hashlib.sha1(text.encode()).hexdigest()[:8]
 
 
-def render_public(items: list[dict], owner: str, results: dict[str, dict]) -> str:
-    cells = []
-    for it in items:
-        r = results[it["repo"]]
-        if r["state"] == "live":
-            title = f'<a href="{r["url"]}"><b><code>{it["title"]}</code></b></a>'
-            badge_url = SHIELD.format(label=STAR, msg=compact(r["stars"]), color="FB923C")
-            badge = f'<a href="{r["url"]}/stargazers"><img src="{badge_url}" alt="stars" /></a>'
-        else:
-            title = f'<b><code>{it["title"]}</code></b>'
-            badge = f'<img src="{SHIELD.format(label=STAR, msg="soon", color="332B26")}" alt="coming soon" />'
-        cells.append(f'{title}&nbsp;{badge}<br/>\n      <sub>{it["desc"]}</sub>')
-    return _table(cells, cols=min(2, len(cells)))
-
-
-def render_private(items: list[dict]) -> str:
-    badge = f'<img src="{SHIELD.format(label=DOT, msg="private", color="332B26")}" alt="private" />'
-    cells = []
-    for it in items:
-        stack = " ".join(f"<code>{s}</code>" for s in it["stack"])
-        cells.append(
-            f'<b>{it["title"]}</b>&nbsp;{badge}<br/>\n'
-            f'      <sub>{it["desc"]}</sub><br/>\n'
-            f"      <sub>{stack}</sub>"
-        )
-    return _table(cells, cols=2)
-
-
-def _table(cells: list[str], cols: int) -> str:
-    width = f"{100 // cols}%"
-    rows = []
-    for i in range(0, len(cells), cols):
-        tds = "".join(f'\n    <td width="{width}" valign="top">\n      {c}\n    </td>' for c in cells[i : i + cols])
-        rows.append(f"  <tr>{tds}\n  </tr>")
-    return "<table>\n" + "\n".join(rows) + "\n</table>"
+def public_block(it: dict, r: dict, url: str) -> str:
+    """공개 카드는 그림 한 장. 저장소가 살아 있으면 그 그림을 저장소 링크로 감싼다."""
+    img = f'<img width="100%" src="{url}" alt="{it["title"]} — {it["desc"]}" />'
+    if r["state"] == "live":
+        img = f'<a href="{r["url"]}">{img}</a>'
+    return f'<p align="center">\n  {img}\n</p>'
 
 
 def main() -> int:
@@ -182,22 +161,31 @@ def main() -> int:
     files: dict[str, str] = dict(assets.static_assets())
 
     plugin = results.get("tgx-agent-mash", {"state": "missing"})
-    hero_path = ASSETS / "hero.svg"
     if plugin["state"] == "live":
-        files["hero.svg"] = assets.hero(f"★ {compact(plugin['stars'])}")
-    elif plugin["state"] == "missing" or not hero_path.exists():
-        files["hero.svg"] = assets.hero("coming soon")
+        chip = f"★ {compact(plugin['stars'])}"
+    elif plugin["state"] == "missing":
+        chip = "coming soon"
     else:
-        print("warn: 플러그인 상태를 모름 — 히어로는 이전 것을 유지", file=sys.stderr)
+        chip = None  # 모름 — 이전 그림 유지
+    hero_label = chip
+
+    def keep_or(name: str, make, ready: bool) -> None:
+        """값이 있으면 새로 그리고, 없으면 이전 그림을 둔다. 처음이면 자리표시로 그린다."""
+        if ready or not (ASSETS / name).exists():
+            files[name] = make()
+        else:
+            print(f"warn: {name} 은 이전 것을 유지", file=sys.stderr)
+
+    keep_or("hero.svg", lambda: assets.hero(hero_label or "coming soon"), chip is not None)
+    pub = cfg["public"][0]
+    keep_or("card-public.svg", lambda: assets.card_public(pub, chip or "coming soon"), chip is not None)
+    files["cards-private.svg"] = assets.cards_private(cfg["private"])
 
     stats = None if args.offline else fetch_stats(owner, token)
-    tiles_path = ASSETS / "stat-tiles.svg"
-    if stats:
-        files["stat-tiles.svg"] = assets.stat_tiles(stats)
-    elif not tiles_path.exists():
-        files["stat-tiles.svg"] = assets.stat_tiles({})
-    else:
-        print("warn: 통계를 못 받음 — 통계 타일은 이전 것을 유지", file=sys.stderr)
+    days = stats["days"] if stats else []
+    keep_or("stat-tiles.svg", lambda: assets.stat_tiles(stats["tiles"] if stats else {}), bool(stats))
+    keep_or("activity.svg", lambda: assets.activity(days), bool(stats))
+    keep_or("streak.svg", lambda: assets.streak(days), bool(stats))
 
     for name, svg in files.items():
         (ASSETS / name).write_text(svg, encoding="utf-8")
@@ -206,18 +194,16 @@ def main() -> int:
     tpl = TEMPLATE.read_text(encoding="utf-8")
     tpl = re.sub(r"\A<!--.*?-->\s*", "", tpl, flags=re.S)
 
-    def asset_url(m: re.Match) -> str:
-        name = m.group(1)
+    def asset_url_for(name: str) -> str:
         if args.local:
             return f"assets/{name}"
         content = (ASSETS / name).read_text(encoding="utf-8")
         return RAW.format(owner=owner, name=name, ver=ver(content))
 
-    out = re.sub(r"\{\{asset:([\w.-]+)\}\}", asset_url, tpl)
-    out = out.replace("{{PUBLIC}}", render_public(cfg["public"], owner, results))
-    out = out.replace("{{PRIVATE}}", render_private(cfg["private"]))
+    out = re.sub(r"\{\{asset:([\w.-]+)\}\}", lambda m: asset_url_for(m.group(1)), tpl)
+    pub = cfg["public"][0]
+    out = out.replace("{{PUBLIC}}", public_block(pub, results[pub["repo"]], asset_url_for("card-public.svg")))
     out = out.replace("{{MORE}}", str(cfg.get("more_private", 0)))
-    out = out.replace("{{SYNC}}", dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d"))
     header = "<!-- 이 파일은 자동 생성된다. 고칠 곳은 .github/README.template.md 와 .github/repos.json -->\n\n"
     README.write_text(header + out, encoding="utf-8")
 

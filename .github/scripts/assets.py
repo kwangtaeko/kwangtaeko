@@ -273,19 +273,190 @@ def footer() -> str:
     return _wrap(830, 64, "TGX", body, plate=False)
 
 
-def star() -> str:
-    body = (
-        f'<path fill="{ORANGE}" d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279'
-        "l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194"
-        'L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/>'
+# ── 카드 ──────────────────────────────────────────────────────────
+def _char_w(ch: str, size: float) -> float:
+    """SVG 는 글자를 스스로 줄바꿈하지 못해 폭을 어림한다. 한글·CJK 는 1em,
+    나머지는 대략 반 폭. 약간 넉넉하게 잡아 오른쪽 끝에 닿지 않게 한다."""
+    o = ord(ch)
+    if o >= 0x1100 and (0x1100 <= o <= 0x11FF or 0x2E80 <= o <= 0xA4CF or 0xAC00 <= o <= 0xD7A3 or 0xF900 <= o <= 0xFAFF or 0xFF00 <= o <= 0xFF60):
+        return size * 1.0
+    if ch == " ":
+        return size * 0.3
+    if ch in "·.,:;'\"()+×":
+        return size * 0.38
+    if ch.isupper() or ch.isdigit():
+        return size * 0.64
+    return size * 0.56
+
+
+def text_w(s: str, size: float) -> float:
+    return sum(_char_w(c, size) for c in s)
+
+
+def wrap(text: str, width: float, size: float) -> list[str]:
+    """공백에서 끊는다(한국어도 어절 단위 — keep-all). 한 어절이 너무 길면 그 안에서 끊는다."""
+    lines: list[str] = []
+    cur = ""
+    for word in text.split(" "):
+        cand = word if not cur else f"{cur} {word}"
+        if text_w(cand, size) <= width:
+            cur = cand
+            continue
+        if cur:
+            lines.append(cur)
+        cur = ""
+        while text_w(word, size) > width:
+            cut = len(word)
+            while cut > 1 and text_w(word[:cut], size) > width:
+                cut -= 1
+            lines.append(word[:cut])
+            word = word[cut:]
+        cur = word
+    if cur:
+        lines.append(cur)
+    return lines
+
+
+CARD_PAD = 18
+TITLE = 15
+DESC = 12.5
+DESC_LH = 19
+CHIP = 10.5
+
+
+def _card(x: float, y: float, w: float, h: float, it: dict, chip: str, chip_col: str, chip_bg: str, title_font: str) -> str:
+    """카드 한 장. 칩은 제목과 같은 줄, 오른쪽 위에 붙는다."""
+    p = []
+    p.append(f'<g transform="translate({x} {y})">')
+    p.append(f'<rect width="{w}" height="{h}" rx="10" fill="{CARD}" stroke="{LINE}"/>')
+    cw = text_w(chip, CHIP) + 20
+    p.append(f'<rect x="{w - CARD_PAD - cw:.1f}" y="18" width="{cw:.1f}" height="20" rx="10" fill="{chip_bg}"/>')
+    p.append(
+        f'<text x="{w - CARD_PAD - cw / 2:.1f}" y="31.5" text-anchor="middle" font-family="{MONO}" '
+        f'font-size="{CHIP}" fill="{chip_col}">{escape(chip)}</text>'
     )
-    return _wrap(16, 16, "star", body, plate=False)
+    p.append(
+        f'<text x="{CARD_PAD}" y="34" font-family="{title_font}" font-size="{TITLE}" font-weight="700" '
+        f'fill="{INK}">{escape(it["title"])}</text>'
+    )
+    lines = wrap(it["desc"], w - CARD_PAD * 2, DESC)
+    for i, ln in enumerate(lines):
+        p.append(
+            f'<text x="{CARD_PAD}" y="{60 + i * DESC_LH}" font-family="{SANS}" font-size="{DESC}" '
+            f'fill="{MUTE}">{escape(ln)}</text>'
+        )
+    stack = it.get("stack") or []
+    if stack:
+        cy = 60 + (len(lines) - 1) * DESC_LH + 14
+        cx = CARD_PAD
+        for s in stack:
+            sw = text_w(s, CHIP) + 16
+            p.append(f'<rect x="{cx:.1f}" y="{cy}" width="{sw:.1f}" height="20" rx="4" fill="{BG}" stroke="{LINE}"/>')
+            p.append(
+                f'<text x="{cx + sw / 2:.1f}" y="{cy + 13.5}" text-anchor="middle" font-family="{MONO}" '
+                f'font-size="{CHIP}" fill="{INK}">{escape(s)}</text>'
+            )
+            cx += sw + 6
+    p.append("</g>")
+    return "".join(p)
+
+
+def _card_h(it: dict, w: float) -> float:
+    n = len(wrap(it["desc"], w - CARD_PAD * 2, DESC))
+    last = 60 + (n - 1) * DESC_LH
+    return last + (14 + 20 + 18 if it.get("stack") else 20)
+
+
+def cards_private(items: list[dict]) -> str:
+    """비공개 대표 카드 — 2열. 같은 행 두 장은 높이를 맞춘다."""
+    W, GAP = 830, 14
+    cw = (W - GAP) / 2
+    parts = []
+    y = 0.0
+    for i in range(0, len(items), 2):
+        row = items[i : i + 2]
+        h = max(_card_h(it, cw) for it in row)
+        for j, it in enumerate(row):
+            parts.append(_card(j * (cw + GAP), y, cw, h, it, "● private", MUTE, LINE, SANS))
+        y += h + GAP
+    H = int(y - GAP + 1)
+    label = "built in private — " + ", ".join(it["title"] for it in items)
+    return _wrap(W, H, label, "".join(parts), plate=False)
+
+
+def card_public(it: dict, chip: str) -> str:
+    """공개 플러그인 카드. 칩은 ★ soon 또는 ★ 스타 수."""
+    W = 830
+    h = _card_h(it, W)
+    body = _card(0, 0, W, h, it, chip, ORANGE, "#2a1a10", MONO)
+    return _wrap(W, int(h + 1), f'{it["title"]} — {it["desc"]}', body, plate=False)
+
+
+# ── 기여 그래프 · 연속 기록 ────────────────────────────────────────
+def activity(days: list[tuple[str, int]]) -> str:
+    """최근 31일 기여 꺾은선. days 는 (YYYY-MM-DD, count) 오래된 순."""
+    W, H = 830, 190
+    recent = days[-31:] if days else []
+    x0, x1, y0, y1 = 44, 806, 40, 158
+    top = max([c for _, c in recent] + [4])
+    top = (top + 4) // 5 * 5
+    b = [f'<defs><linearGradient id="actg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="{ORANGE}" stop-opacity=".35"/><stop offset="1" stop-color="{ORANGE}" stop-opacity="0"/></linearGradient></defs>']
+    for g in range(5):
+        gy = y0 + (y1 - y0) * g / 4
+        b.append(f'<line x1="{x0}" x2="{x1}" y1="{gy:.1f}" y2="{gy:.1f}" stroke="#211c19"/>')
+    for v in (0, top // 2, top):
+        b.append(f'<text x="{x0 - 10}" y="{y1 - (y1 - y0) * v / top + 4:.1f}" text-anchor="end" font-family="{MONO}" font-size="10" fill="{FAINT}">{v}</text>')
+    total = sum(c for _, c in recent)
+    b.append(f'<text x="{x0}" y="26" font-family="{MONO}" font-size="11" fill="{MUTE}" letter-spacing="1">CONTRIBUTIONS · LAST 31 DAYS · {total}</text>')
+    if len(recent) >= 2:
+        n = len(recent)
+        pts = [(x0 + (x1 - x0) * i / (n - 1), y1 - (y1 - y0) * c / top) for i, (_, c) in enumerate(recent)]
+        line = "M" + " L".join(f"{x:.1f} {y:.1f}" for x, y in pts)
+        b.append(f'<path d="{line} L{x1} {y1} L{x0} {y1} Z" fill="url(#actg)"/>')
+        b.append(f'<path d="{line}" fill="none" stroke="{ORANGE}" stroke-width="2" stroke-linejoin="round"/>')
+        for x, y in pts:
+            b.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="2.3" fill="{INK}"/>')
+        for idx in (0, n // 2, n - 1):
+            d = recent[idx][0][5:].replace("-", ".")
+            anchor = "start" if idx == 0 else "end" if idx == n - 1 else "middle"
+            b.append(f'<text x="{pts[idx][0]:.1f}" y="{y1 + 18}" text-anchor="{anchor}" font-family="{MONO}" font-size="10" fill="{FAINT}">{d}</text>')
+    return _wrap(W, H, f"contributions in the last 31 days: {total}", "".join(b))
+
+
+def streak(days: list[tuple[str, int]]) -> str:
+    """현재 연속 · 최장 연속 · 1년 합계. 오늘 아직 기여가 없으면 어제부터 센다."""
+    counts = [c for _, c in days]
+    cur = 0
+    i = len(counts) - 1
+    if i >= 0 and counts[i] == 0:
+        i -= 1
+    while i >= 0 and counts[i] > 0:
+        cur += 1
+        i -= 1
+    longest = run = 0
+    for c in counts:
+        run = run + 1 if c > 0 else 0
+        longest = max(longest, run)
+    total = sum(counts)
+    show = (lambda v: str(v)) if days else (lambda v: "—")
+    b = [
+        f'<circle cx="104" cy="80" r="40" fill="none" stroke="{LINE}" stroke-width="6"/>',
+        f'<circle cx="104" cy="80" r="40" fill="none" stroke="{ORANGE}" stroke-width="6" stroke-linecap="round" '
+        f'stroke-dasharray="{min(cur, 30) / 30 * 251.3:.1f} 251.3" transform="rotate(-90 104 80)"/>',
+        f'<text x="104" y="90" text-anchor="middle" font-family="{MONO}" font-size="28" font-weight="800" fill="{INK}">{show(cur)}</text>',
+        f'<text x="104" y="146" text-anchor="middle" font-family="{MONO}" font-size="10" fill="{ORANGE}" letter-spacing="1">CURRENT STREAK</text>',
+        f'<line x1="208" y1="30" x2="208" y2="140" stroke="{LINE}"/>',
+    ]
+    for k, (lab, v, col) in enumerate([("LONGEST STREAK", show(longest), LILAC), ("TOTAL · 1Y", show(total), INK)]):
+        yy = 52 + k * 62
+        b.append(f'<text x="232" y="{yy}" font-family="{MONO}" font-size="10" fill="{MUTE}" letter-spacing="1">{lab}</text>')
+        b.append(f'<text x="232" y="{yy + 30}" font-family="{MONO}" font-size="24" font-weight="800" fill="{col}">{v}</text>')
+    return _wrap(400, 170, f"current streak {cur}, longest {longest}, total {total}", "".join(b))
 
 
 def static_assets() -> dict[str, str]:
     """매번 같은 결과가 나오는 자산."""
     return {
-        "star.svg": star(),
         "section-public.svg": section("PUBLIC", "the one to star"),
         "section-workflow.svg": section("HOW TGX WORKS", "human decides, agents verify"),
         "section-private.svg": section("BUILT IN PRIVATE", "code stays home", VIOLET),

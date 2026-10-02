@@ -4,10 +4,11 @@
 
   자리표시:
     {{asset:파일명}}  assets/ 의 파일을 내용 해시가 붙은 raw 주소로 (캐시 무력화)
-    {{PUBLIC}}        .github/repos.json 의 public — 스타 수를 조회해 카드로
-    {{PRIVATE}}       .github/repos.json 의 private — 2열 카드
+    {{PUBLIC}}        공개 플러그인 카드 그림(저장소가 공개되면 링크로 감싸짐)
     {{MORE}}          비공개 저장소 나머지 개수
-    {{SYNC}}          마지막 갱신 날짜
+
+  카드 · 꺾은선 · 연속 기록은 전부 assets/ 의 SVG 다. GitHub 은 README 의 색과
+  글꼴을 지우므로 HTML 표로는 디자인을 맞출 수 없어 그림으로 그린다.
 -->
 
 <p align="center">
@@ -32,7 +33,9 @@
 
 <img width="100%" src="{{asset:section-private.svg}}" alt="built in private — code stays home" />
 
-{{PRIVATE}}
+<p align="center">
+  <img width="100%" src="{{asset:cards-private.svg}}" alt="built in private — TG Platform, TGX Agent Chatbot, TG-Nova, 시장장터, 네오뮤직, TG Launcher" />
+</p>
 
 <p align="center"><sub>+{{MORE}} more in private · 아키텍처와 설계 결정은 <a href="https://tonygwangsk.dev">tonygwangsk.dev</a> 에</sub></p>
 
@@ -46,10 +49,10 @@
 
 <p align="center">
   <img height="170" src="{{asset:stat-tiles.svg}}" alt="TGX stats" />
-  <img height="170" src="https://streak-stats.demolab.com?user=kwangtaeko&hide_border=true&background=100E0D&ring=FB923C&fire=FB923C&currStreakLabel=FB923C&currStreakNum=F2E9E3&sideNums=F2E9E3&sideLabels=A99A90&dates=6F625A&stroke=332B26" alt="streak" />
+  <img height="170" src="{{asset:streak.svg}}" alt="streak" />
 </p>
 
-<img width="100%" src="https://github-readme-activity-graph.vercel.app/graph?username=kwangtaeko&bg_color=100E0D&color=A99A90&title_color=A99A90&line=FB923C&point=F2E9E3&area=true&area_color=FB923C&hide_border=true&radius=10" alt="contribution graph" />
+<img width="100%" src="{{asset:activity.svg}}" alt="contributions in the last 31 days" />
 
 <br/>
 
@@ -58,7 +61,5 @@
   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/output/snake-light.svg" />
   <img alt="contribution snake" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/output/snake-dark.svg" width="100%" />
 </picture>
-
-<p align="center"><sub><img src="{{asset:star.svg}}" height="11" alt="star" /> 카드 · 스타 수 · 히어로는 GitHub Actions 가 6시간마다 다시 그립니다 · last sync: <code>{{SYNC}}</code></sub></p>
 
 <img width="100%" src="{{asset:footer.svg}}" alt="TGX" />
