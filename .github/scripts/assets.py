@@ -78,13 +78,13 @@ def hero(plugin_label: str) -> str:
         f'<text x="50" y="184" font-family="{SANS}" font-size="19" font-weight="650" '
         f'fill="{ORANGE}">Agents, leading what&#8217;s next.</text>'
     )
-    pill_w = 28 + int(7.3 * (len("tgx-agent-mash · ") + len(plugin_label))) + 16
+    pill_w = 28 + int(7.3 * (len("tgx-agent-mesh · ") + len(plugin_label))) + 16
     a(
         f'<g transform="translate(36 236)"><rect width="{pill_w}" height="30" rx="15" fill="{ORANGE}" '
         f'fill-opacity=".09" stroke="{ORANGE}" stroke-opacity=".55"/>'
         f'<circle cx="16" cy="15" r="4" fill="{ORANGE}"><animate attributeName="opacity" '
         f'values="1;.25;1" dur="1.6s" repeatCount="indefinite"/></circle>'
-        f'<text x="28" y="19.5" font-family="{MONO}" font-size="12" fill="{INK}">tgx-agent-mash '
+        f'<text x="28" y="19.5" font-family="{MONO}" font-size="12" fill="{INK}">tgx-agent-mesh '
         f'<tspan fill="{MUTE}">· {escape(plugin_label)}</tspan></text></g>'
     )
     # 오른쪽 — 가운데 TGX 로 모이는 에이전트들
@@ -339,11 +339,11 @@ def _card(x: float, y: float, w: float, h: float, it: dict, chip: str, chip_col:
         f'<text x="{CARD_PAD}" y="34" font-family="{title_font}" font-size="{TITLE}" font-weight="700" '
         f'fill="{INK}">{escape(it["title"])}</text>'
     )
-    lines = wrap(it["desc"], w - CARD_PAD * 2, DESC)
-    for i, ln in enumerate(lines):
+    lines = _desc_lines(it, w)
+    for i, (ln, col) in enumerate(lines):
         p.append(
             f'<text x="{CARD_PAD}" y="{60 + i * DESC_LH}" font-family="{SANS}" font-size="{DESC}" '
-            f'fill="{MUTE}">{escape(ln)}</text>'
+            f'fill="{col}">{escape(ln)}</text>'
         )
     stack = it.get("stack") or []
     if stack:
@@ -361,8 +361,22 @@ def _card(x: float, y: float, w: float, h: float, it: dict, chip: str, chip_col:
     return "".join(p)
 
 
+def _desc_lines(it: dict, w: float) -> list[tuple[str, str]]:
+    """설명 줄과 색. desc 가 배열이면 첫 줄(무엇)은 밝게, 나머지(핵심 기능)는 흐리게."""
+    desc = it["desc"]
+    if isinstance(desc, str):
+        return [(ln, MUTE) for ln in wrap(desc, w - CARD_PAD * 2, DESC)]
+    return [(ln, INK if k == 0 else MUTE) for k, part in enumerate(desc) for ln in wrap(part, w - CARD_PAD * 2, DESC)]
+
+
+def desc_text(it: dict) -> str:
+    """그림 설명(alt)용 — 줄을 한 문장으로 잇는다."""
+    d = it["desc"]
+    return d if isinstance(d, str) else " ".join(d)
+
+
 def _card_h(it: dict, w: float) -> float:
-    n = len(wrap(it["desc"], w - CARD_PAD * 2, DESC))
+    n = len(_desc_lines(it, w))
     last = 60 + (n - 1) * DESC_LH
     return last + (14 + 20 + 18 if it.get("stack") else 20)
 
@@ -385,11 +399,11 @@ def cards_private(items: list[dict]) -> str:
 
 
 def card_public(it: dict, chip: str) -> str:
-    """공개 플러그인 카드. 칩은 ★ soon 또는 ★ 스타 수."""
+    """공개 플러그인 카드. 칩은 coming soon 또는 ★ 스타 수."""
     W = 830
     h = _card_h(it, W)
     body = _card(0, 0, W, h, it, chip, ORANGE, "#2a1a10", MONO)
-    return _wrap(W, int(h + 1), f'{it["title"]} — {it["desc"]}', body, plate=False)
+    return _wrap(W, int(h + 1), f'{it["title"]} — {desc_text(it)}', body, plate=False)
 
 
 # ── 기여 그래프 · 연속 기록 ────────────────────────────────────────

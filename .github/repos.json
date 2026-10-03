@@ -1,10 +1,10 @@
 {
-  "_comment": "README 카드의 원본. public 은 스타 수를 실제로 조회하고, private 는 적힌 그대로 그린다. 순서가 곧 화면 순서(2열).",
+  "_comment": "README 카드의 원본. public 은 스타 수를 실제로 조회하고, private 는 적힌 그대로 그린다. private desc 는 [무엇, 핵심 기능] 두 줄. 순서가 곧 화면 순서(2열).",
   "owner": "kwangtaeko",
   "public": [
     {
-      "repo": "tgx-agent-mash",
-      "title": "tgx-agent-mash",
+      "repo": "tgx-agent-mesh",
+      "title": "tgx-agent-mesh",
       "desc": "특정 도구에 묶이지 않는 범용 에이전트 플러그인."
     }
   ],
@@ -12,37 +12,37 @@
     {
       "title": "TG Platform",
       "repos": ["tg-platform", "tg-contract", "tgs"],
-      "desc": "저장소 간 개발 표준의 정본. RFC 9457 오류 계약을 패키지로 배포하고, requestId · traceId · 구조화 로그를 기본으로 주는 Spring Boot Starter까지.",
+      "desc": ["모든 TG 저장소가 따르는 백엔드 표준.", "RFC 9457 오류 계약 · traceId 로그를 Starter 하나로."],
       "stack": ["Spring Boot", "RFC 9457", "ADR ×5"]
     },
     {
       "title": "TGX Agent Chatbot",
       "repos": ["tgx-agent-chatbot"],
-      "desc": "로컬 Ollama 위의 에이전트형 RAG 를 어느 사이트에나 위젯으로 붙이는 범용 챗봇으로 키웠다. 멀티 테넌트 · 가드레일 · BM25 + 벡터 하이브리드 · 런북 9종.",
+      "desc": ["어느 사이트에나 위젯으로 붙이는 범용 챗봇.", "로컬 LLM 위 에이전트형 RAG, 멀티 테넌트 · 가드레일."],
       "stack": ["FastAPI", "LangGraph", "OpenTelemetry"]
     },
     {
       "title": "TG-Nova",
       "repos": ["TG-Nova"],
-      "desc": "송금 · 페이 · 투자가 한 원장을 공유하는 핀테크 백엔드. 잔액은 저장하지 않고 원장에서 도출한다.",
+      "desc": ["송금 · 페이 · 투자가 한 원장을 쓰는 핀테크 백엔드.", "잔액은 저장하지 않고 원장에서 도출."],
       "stack": ["Kotlin", "Spring Boot", "jOOQ"]
     },
     {
       "title": "시장장터",
       "repos": ["foodindustry"],
-      "desc": "도매와 구매업주를 잇는 B2B 마켓. 브랜드 · 본사 · 매장 3층 멀티테넌시와 Outbox 비동기. 친구들과 함께, PM 은 내가.",
+      "desc": ["도매상과 구매업주를 잇는 B2B 마켓.", "브랜드 · 본사 · 매장 3층 멀티테넌시 + Outbox 비동기."],
       "stack": ["Spring Boot", "Next.js", "Expo"]
     },
     {
       "title": "네오뮤직",
       "repos": ["neomusiq-platform"],
-      "desc": "실용음악 학원 예약 앱. 연습실 예약과 레슨 일정을 한곳에서 잡는다. 설치 없는 PWA 로, 엣지에서 돈다.",
+      "desc": ["실용음악 학원 예약 앱.", "연습실 · 레슨 예약을 설치 없는 PWA 하나로."],
       "stack": ["Next.js", "Cloudflare Workers", "Neon"]
     },
     {
       "title": "TG Launcher",
       "repos": ["tg-launcher"],
-      "desc": "배포한 TG 사이트들로 들어가는 단 하나의 문. 허용된 구글 계정 + TOTP 2단계 인증을 통과해야 열리고, 보호 사이트에는 서명 토큰으로 SSO. 누가 들어오면 폰으로 웹푸시.",
+      "desc": ["배포한 TG 사이트로 들어가는 단 하나의 문.", "구글 계정 + TOTP 2단계 인증, 통과하면 SSO."],
       "stack": ["Next.js 16", "Auth.js", "TOTP"]
     }
   ],

@@ -133,7 +133,7 @@ def ver(text: str) -> str:
 
 def public_block(it: dict, r: dict, url: str) -> str:
     """공개 카드는 그림 한 장. 저장소가 살아 있으면 그 그림을 저장소 링크로 감싼다."""
-    img = f'<img width="100%" src="{url}" alt="{it["title"]} — {it["desc"]}" />'
+    img = f'<img width="100%" src="{url}" alt="{it["title"]} — {assets.desc_text(it)}" />'
     if r["state"] == "live":
         img = f'<a href="{r["url"]}">{img}</a>'
     return f'<p align="center">\n  {img}\n</p>'
@@ -160,7 +160,7 @@ def main() -> int:
     # 자산 — 정적인 것은 매번 다시, 동적인 것은 값이 있을 때만
     files: dict[str, str] = dict(assets.static_assets())
 
-    plugin = results.get("tgx-agent-mash", {"state": "missing"})
+    plugin = results.get(cfg["public"][0]["repo"], {"state": "missing"})
     if plugin["state"] == "live":
         chip = f"★ {compact(plugin['stars'])}"
     elif plugin["state"] == "missing":
