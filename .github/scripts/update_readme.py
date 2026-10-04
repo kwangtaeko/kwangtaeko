@@ -11,8 +11,8 @@
      걸리면 README 에 깨진 그림만 남았다. 이제 남의 서버에 기대지 않는다.
   4. 카드도 SVG 로 그린다. GitHub 은 README 의 색·글꼴을 지워서 HTML 표로는
      카드 디자인을 맞출 수 없다.
-  5. README_TOKEN(카드 저장소만 읽는 fine-grained 토큰)이 있으면 카드마다 마지막 push
-     시각, 카드 저장소들의 언어 비율, 1년 커밋 · PR 수를 받아 그린다. 커밋 · PR 은
+  5. README_TOKEN(카드 저장소만 읽는 fine-grained 토큰)이 있으면 카드 저장소들의
+     언어 비율과 1년 커밋 · PR 수를 받아 그린다. 커밋 · PR 은
      GraphQL 기여 집계가 fine-grained 토큰으로는 비공개 몫을 세지 않아 저장소별로 직접 센다. 조회하는 저장소는 repos.json 의
      카드 저장소뿐이고, 로그에는 숫자만 남긴다 — Actions 로그는 누구나 볼 수 있다.
   6. 자산 주소에 내용 해시를 붙여(?v=) GitHub 이미지 캐시가 옛 그림을 붙들고 있지 않게 한다.
@@ -116,24 +116,6 @@ def fetch_stats(owner: str, token: str | None) -> dict | None:
         },
         "days": days,
     }
-
-
-def fetch_pushed(owner: str, cards: list[dict], token: str | None) -> tuple[dict[str, dt.datetime], int]:
-    """카드마다 묶인 저장소들 중 가장 최근 push 시각. (결과, 읽은 저장소 수)"""
-    out: dict[str, dt.datetime] = {}
-    ok = 0
-    if not token:
-        return out, ok
-    for card in cards:
-        for repo in card.get("repos", []):
-            status, data = _request(f"https://api.github.com/repos/{owner}/{repo}", token)
-            if status != 200 or not data or not data.get("pushed_at"):
-                continue
-            ok += 1
-            when = dt.datetime.fromisoformat(data["pushed_at"].replace("Z", "+00:00"))
-            if card["title"] not in out or when > out[card["title"]]:
-                out[card["title"]] = when
-    return out, ok
 
 
 def fetch_work(owner: str, cards: list[dict], token: str | None) -> dict[str, int]:
@@ -256,14 +238,7 @@ def main() -> int:
         chip is not None,
     )
 
-    # 비공개 카드 — 토큰이 없으면 칩만 '● private'. 토큰이 있는데 하나도 못 읽었거나
-    # --offline(로컬 실행)이면 이전 그림 유지 — 봇이 붙여 둔 시각 칩을 지우지 않게.
-    pushed, pushed_ok = fetch_pushed(owner, cfg["private"], pat)
-    keep_or(
-        "cards-private.svg",
-        lambda: assets.cards_private(cfg["private"], pushed),
-        bool(pushed) or (not pat and not args.offline),
-    )
+    files["cards-private.svg"] = assets.cards_private(cfg["private"])
     langs = fetch_languages(owner, cfg["private"], pat)
     keep_or("languages.svg", lambda: assets.languages(langs), bool(langs))
 
@@ -303,10 +278,9 @@ def main() -> int:
         print(f"error: 채우지 못한 자리표시 {left}", file=sys.stderr)
         return 1
     states = ", ".join(f"{k}={v['state']}" for k, v in results.items())
-    n_repos = sum(len(c.get("repos", [])) for c in cfg["private"])
     tiles = " ".join(f"{k}={v}" for k, v in stats["tiles"].items()) if stats else "kept"
     print(
-        f"README 갱신 · {states} · token={'ok' if pat else 'none'} · pushed={pushed_ok}/{n_repos} "
+        f"README 갱신 · {states} · token={'ok' if pat else 'none'} "
         f"· langs={len(langs)} · stats: {tiles}"
     )
     return 0

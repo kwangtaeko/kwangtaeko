@@ -388,22 +388,8 @@ def _card_h(it: dict, w: float) -> float:
     return last + (14 + 20 + 18 if it.get("stack") else 20)
 
 
-def ago(when: dt.datetime, now: dt.datetime | None = None) -> str:
-    """마지막 push 가 얼마나 지났는지 — today · 3d · 2w · 4mo."""
-    days = ((now or dt.datetime.now(dt.timezone.utc)) - when).days
-    if days < 1:
-        return "today"
-    if days < 14:
-        return f"{days}d ago"
-    if days < 60:
-        return f"{days // 7}w ago"
-    return f"{days // 30}mo ago"
-
-
-def cards_private(items: list[dict], pushed: dict[str, dt.datetime] | None = None) -> str:
-    """비공개 대표 카드 — 2열. 같은 행 두 장은 높이를 맞춘다.
-    pushed 가 있으면 칩에 마지막 작업 시각을 붙인다(● private · 2d ago)."""
-    pushed = pushed or {}
+def cards_private(items: list[dict]) -> str:
+    """비공개 대표 카드 — 2열. 같은 행 두 장은 높이를 맞춘다."""
     W, GAP = 830, 14
     cw = (W - GAP) / 2
     parts = []
@@ -412,9 +398,7 @@ def cards_private(items: list[dict], pushed: dict[str, dt.datetime] | None = Non
         row = items[i : i + 2]
         h = max(_card_h(it, cw) for it in row)
         for j, it in enumerate(row):
-            when = pushed.get(it["title"])
-            chip = f"● private · {ago(when)}" if when else "● private"
-            parts.append(_card(j * (cw + GAP), y, cw, h, it, chip, MUTE, LINE, SANS))
+            parts.append(_card(j * (cw + GAP), y, cw, h, it, "● private", MUTE, LINE, SANS))
         y += h + GAP
     H = int(y - GAP + 1)
     label = "built in private — " + ", ".join(it["title"] for it in items)
