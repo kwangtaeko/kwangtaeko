@@ -56,6 +56,8 @@
 
 <img width="100%" src="{{asset:languages.svg}}" alt="languages across the private cards" />
 
+<img width="100%" src="{{asset:weekday.svg}}" alt="contributions by weekday over the last year" />
+
 <br/>
 
 <picture>
