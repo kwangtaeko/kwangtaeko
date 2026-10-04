@@ -5,14 +5,15 @@
   1. assets/ 의 SVG 를 전부 다시 찍는다(assets.py).
   2. .github/repos.json 의 공개 저장소 스타 수를 조회해 카드와 히어로 알약에 넣는다.
      저장소가 아직 없으면(404) "coming soon" 으로 그린다 — 실패로 치지 않는다.
-  3. GraphQL 로 기여 달력을 받아 통계 타일(기여 · 커밋 · PR · 리뷰) · 31일 꺾은선 ·
-     연속 기록 · 요일별 막대를 직접 그린다.
+  3. GraphQL 로 기여 달력을 받아 통계 타일 · 31일 꺾은선 · 연속 기록 · 요일별 막대를
+     직접 그린다. 달력은 GITHUB_TOKEN 으로 본다 — 프로필에 보이는 숫자와 같다.
      예전엔 꺾은선과 연속 기록을 외부 무료 서비스에서 받아 왔는데, 그쪽 한도에
      걸리면 README 에 깨진 그림만 남았다. 이제 남의 서버에 기대지 않는다.
   4. 카드도 SVG 로 그린다. GitHub 은 README 의 색·글꼴을 지워서 HTML 표로는
      카드 디자인을 맞출 수 없다.
   5. README_TOKEN(카드 저장소만 읽는 fine-grained 토큰)이 있으면 카드마다 마지막 push
-     시각과, 카드 저장소들의 언어 비율을 받아 그린다. 조회하는 저장소는 repos.json 의
+     시각, 카드 저장소들의 언어 비율, 1년 커밋 · PR 수를 받아 그린다. 커밋 · PR 은
+     GraphQL 기여 집계가 fine-grained 토큰으로는 비공개 몫을 세지 않아 저장소별로 직접 센다. 조회하는 저장소는 repos.json 의
      카드 저장소뿐이고, 로그에는 숫자만 남긴다 — Actions 로그는 누구나 볼 수 있다.
   6. 자산 주소에 내용 해시를 붙여(?v=) GitHub 이미지 캐시가 옛 그림을 붙들고 있지 않게 한다.
 
@@ -81,9 +82,6 @@ STATS_QUERY = """
 query($login: String!) {
   user(login: $login) {
     contributionsCollection {
-      totalCommitContributions
-      totalPullRequestContributions
-      totalPullRequestReviewContributions
       contributionCalendar {
         totalContributions
         weeks { contributionDays { date contributionCount } }
@@ -110,13 +108,11 @@ def fetch_stats(owner: str, token: str | None) -> dict | None:
     days.sort()
     today = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
     days = [d for d in days if d[0] <= today]
-    cc = user["contributionsCollection"]
     return {
         "tiles": {
             "contrib": compact(cal["totalContributions"]),
-            "commits": compact(cc["totalCommitContributions"]),
-            "prs": compact(cc["totalPullRequestContributions"]),
-            "reviews": compact(cc["totalPullRequestReviewContributions"]),
+            "best": compact(max((c for _, c in days), default=0)),
+            "last30": compact(sum(c for _, c in days[-30:])),
         },
         "days": days,
     }
@@ -138,6 +134,45 @@ def fetch_pushed(owner: str, cards: list[dict], token: str | None) -> tuple[dict
             if card["title"] not in out or when > out[card["title"]]:
                 out[card["title"]] = when
     return out, ok
+
+
+def fetch_work(owner: str, cards: list[dict], token: str | None) -> dict[str, int]:
+    """카드 저장소의 최근 1년 내 커밋(기본 브랜치, 내가 author) · 내가 연 PR 수.
+    한 저장소도 못 읽은 항목은 결과에 넣지 않는다 — 0 과 '모름' 을 구분하려고."""
+    out: dict[str, int] = {}
+    if not token:
+        return out
+    since = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=365)
+    since_s = since.strftime("%Y-%m-%dT%H:%M:%SZ")
+    commits = prs = 0
+    commits_ok = prs_ok = False
+    for repo in dict.fromkeys(r for c in cards for r in c.get("repos", [])):
+        base = f"https://api.github.com/repos/{owner}/{repo}"
+        for page in range(1, 31):
+            status, data = _request(f"{base}/commits?author={owner}&since={since_s}&per_page=100&page={page}", token)
+            if status == 409:  # 빈 저장소
+                commits_ok = True
+                break
+            if status != 200 or not isinstance(data, list):
+                break
+            commits_ok = True
+            commits += len(data)
+            if len(data) < 100:
+                break
+        for page in range(1, 31):
+            status, data = _request(f"{base}/pulls?state=all&sort=created&direction=desc&per_page=100&page={page}", token)
+            if status != 200 or not isinstance(data, list):
+                break
+            prs_ok = True
+            recent = [pr for pr in data if pr.get("created_at", "") >= since_s]
+            prs += sum(1 for pr in recent if (pr.get("user") or {}).get("login", "").lower() == owner.lower())
+            if len(data) < 100 or len(recent) < len(data):
+                break
+    if commits_ok:
+        out["commits"] = commits
+    if prs_ok:
+        out["prs"] = prs
+    return out
 
 
 def fetch_languages(owner: str, cards: list[dict], token: str | None) -> dict[str, int]:
@@ -227,8 +262,11 @@ def main() -> int:
     langs = fetch_languages(owner, cfg["private"], pat)
     keep_or("languages.svg", lambda: assets.languages(langs), bool(langs))
 
-    # 기여 통계 — README_TOKEN 이 있으면 그 토큰으로 봐야 카드 저장소의 커밋 · PR 까지 세어진다
-    stats = None if args.offline else (fetch_stats(owner, pat) if pat else None) or fetch_stats(owner, token)
+    # 기여 통계 — 달력은 GITHUB_TOKEN 으로(프로필과 같은 숫자), 커밋 · PR 은 카드 저장소에서 직접
+    stats = None if args.offline else fetch_stats(owner, token)
+    work = fetch_work(owner, cfg["private"], pat)
+    if stats:
+        stats["tiles"].update({k: compact(v) for k, v in work.items()})
     days = stats["days"] if stats else []
     keep_or("stat-tiles.svg", lambda: assets.stat_tiles(stats["tiles"] if stats else {}), bool(stats))
     keep_or("activity.svg", lambda: assets.activity(days), bool(stats))

@@ -242,13 +242,19 @@ def portfolio_button() -> str:
 
 # ── 통계 타일 ──────────────────────────────────────────────────────
 def stat_tiles(stats: dict[str, str]) -> str:
-    """네 칸. 값이 없으면 '—' 를 그린다(API 실패 시에도 깨지지 않게)."""
-    tiles = [
-        ("CONTRIBUTIONS · 1Y", stats.get("contrib", "—"), ORANGE),
-        ("COMMITS · 1Y", stats.get("commits", "—"), INK),
-        ("PULL REQUESTS · 1Y", stats.get("prs", "—"), INK),
-        ("CODE REVIEWS · 1Y", stats.get("reviews", "—"), LILAC),
+    """네 칸. 기여 · 커밋 · PR 을 먼저 놓고, 값이 없거나 0 인 칸은 빼고 뒤의 후보로 채운다.
+    값이 하나도 없으면 '—' 를 그린다(API 실패 시에도 깨지지 않게)."""
+    cands = [
+        ("CONTRIBUTIONS · 1Y", "contrib"),
+        ("COMMITS · 1Y", "commits"),
+        ("PULL REQUESTS · 1Y", "prs"),
+        ("BEST DAY · 1Y", "best"),
+        ("LAST 30 DAYS", "last30"),
     ]
+    picked = [(lab, stats[k]) for lab, k in cands if stats.get(k) not in (None, "", "0")][:4]
+    if len(picked) < 4:
+        picked = [(lab, "—") for lab, _ in cands[:4]]
+    tiles = [(lab, v, col) for (lab, v), col in zip(picked, [ORANGE, INK, INK, LILAC])]
     b = []
     for i, (label, value, col) in enumerate(tiles):
         x = 14 + (i % 2) * 192
