@@ -54,6 +54,8 @@
 
 <img width="100%" src="{{asset:activity.svg}}" alt="contributions in the last 31 days" />
 
+<img width="100%" src="{{asset:languages.svg}}" alt="languages across the private cards" />
+
 <br/>
 
 <picture>

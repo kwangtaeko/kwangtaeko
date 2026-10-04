@@ -1,6 +1,6 @@
 name: Update README
 
-# 스타 수 · 통계 타일 · 히어로의 플러그인 상태를 6시간마다 다시 그린다.
+# 스타 수 · 통계 · 기여 그래프 · 카드의 마지막 작업 시각을 6시간마다 다시 그린다.
 # 정각을 피해 17분에 돈다 — 정각에는 Actions 대기열이 몰린다.
 on:
   schedule:
@@ -30,6 +30,8 @@ jobs:
       - name: Regenerate README and assets
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 카드 저장소만 읽는 fine-grained 토큰(마지막 작업 시각 · 언어 · 커밋/PR 수). 없으면 그 부분만 빠진다.
+          README_TOKEN: ${{ secrets.README_TOKEN }}
         run: python3 .github/scripts/update_readme.py
 
       - name: Commit if changed

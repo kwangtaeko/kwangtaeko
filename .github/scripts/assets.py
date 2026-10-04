@@ -14,6 +14,7 @@ GitHub 은 README 의 SVG 를 <img> 로 그리므로 외부 폰트·스크립트
 
 from __future__ import annotations
 
+import datetime as dt
 from html import escape
 
 BG = "#100e0d"
@@ -243,10 +244,10 @@ def portfolio_button() -> str:
 def stat_tiles(stats: dict[str, str]) -> str:
     """네 칸. 값이 없으면 '—' 를 그린다(API 실패 시에도 깨지지 않게)."""
     tiles = [
-        ("PUBLIC ★", stats.get("stars", "—"), ORANGE),
-        ("PUBLIC REPOS", stats.get("repos", "—"), INK),
-        ("CONTRIBUTIONS · 1Y", stats.get("contrib", "—"), INK),
-        ("ACTIVE DAYS · 1Y", stats.get("active", "—"), LILAC),
+        ("CONTRIBUTIONS · 1Y", stats.get("contrib", "—"), ORANGE),
+        ("COMMITS · 1Y", stats.get("commits", "—"), INK),
+        ("PULL REQUESTS · 1Y", stats.get("prs", "—"), INK),
+        ("CODE REVIEWS · 1Y", stats.get("reviews", "—"), LILAC),
     ]
     b = []
     for i, (label, value, col) in enumerate(tiles):
@@ -329,7 +330,7 @@ def _card(x: float, y: float, w: float, h: float, it: dict, chip: str, chip_col:
     p = []
     p.append(f'<g transform="translate({x} {y})">')
     p.append(f'<rect width="{w}" height="{h}" rx="10" fill="{CARD}" stroke="{LINE}"/>')
-    cw = text_w(chip, CHIP) + 20
+    cw = len(chip) * CHIP * 0.62 + 20  # 칩 글자는 고정폭(모노)이라 글자 수로 잰다
     p.append(f'<rect x="{w - CARD_PAD - cw:.1f}" y="18" width="{cw:.1f}" height="20" rx="10" fill="{chip_bg}"/>')
     p.append(
         f'<text x="{w - CARD_PAD - cw / 2:.1f}" y="31.5" text-anchor="middle" font-family="{MONO}" '
@@ -381,8 +382,22 @@ def _card_h(it: dict, w: float) -> float:
     return last + (14 + 20 + 18 if it.get("stack") else 20)
 
 
-def cards_private(items: list[dict]) -> str:
-    """비공개 대표 카드 — 2열. 같은 행 두 장은 높이를 맞춘다."""
+def ago(when: dt.datetime, now: dt.datetime | None = None) -> str:
+    """마지막 push 가 얼마나 지났는지 — today · 3d · 2w · 4mo."""
+    days = ((now or dt.datetime.now(dt.timezone.utc)) - when).days
+    if days < 1:
+        return "today"
+    if days < 14:
+        return f"{days}d ago"
+    if days < 60:
+        return f"{days // 7}w ago"
+    return f"{days // 30}mo ago"
+
+
+def cards_private(items: list[dict], pushed: dict[str, dt.datetime] | None = None) -> str:
+    """비공개 대표 카드 — 2열. 같은 행 두 장은 높이를 맞춘다.
+    pushed 가 있으면 칩에 마지막 작업 시각을 붙인다(● private · 2d ago)."""
+    pushed = pushed or {}
     W, GAP = 830, 14
     cw = (W - GAP) / 2
     parts = []
@@ -391,18 +406,37 @@ def cards_private(items: list[dict]) -> str:
         row = items[i : i + 2]
         h = max(_card_h(it, cw) for it in row)
         for j, it in enumerate(row):
-            parts.append(_card(j * (cw + GAP), y, cw, h, it, "● private", MUTE, LINE, SANS))
+            when = pushed.get(it["title"])
+            chip = f"● private · {ago(when)}" if when else "● private"
+            parts.append(_card(j * (cw + GAP), y, cw, h, it, chip, MUTE, LINE, SANS))
         y += h + GAP
     H = int(y - GAP + 1)
     label = "built in private — " + ", ".join(it["title"] for it in items)
     return _wrap(W, H, label, "".join(parts), plate=False)
 
 
-def card_public(it: dict, chip: str) -> str:
-    """공개 플러그인 카드. 칩은 coming soon 또는 ★ 스타 수."""
+def card_public(it: dict, chip: str, stars: int | None = None, goal: int | None = None) -> str:
+    """공개 플러그인 카드. 칩은 coming soon 또는 ★ 스타 수.
+    저장소가 공개돼 스타 수를 알면 설명 아래에 목표까지의 막대를 그린다."""
     W = 830
     h = _card_h(it, W)
-    body = _card(0, 0, W, h, it, chip, ORANGE, "#2a1a10", MONO)
+    bar = ""
+    if stars is not None and goal:
+        by = h - 6
+        label = f"★ {stars} / {goal}"
+        lw = text_w(label, CHIP) + 14
+        bw = W - CARD_PAD * 2 - lw
+        fill = max(6.0, bw * min(stars, goal) / goal)
+        bar = (
+            f'<defs><linearGradient id="goal" x1="0" x2="1"><stop offset="0" stop-color="{DEEP}"/>'
+            f'<stop offset="1" stop-color="{ORANGE}"/></linearGradient></defs>'
+            f'<rect x="{CARD_PAD}" y="{by}" width="{bw:.1f}" height="6" rx="3" fill="{LINE}"/>'
+            f'<rect x="{CARD_PAD}" y="{by}" width="{fill:.1f}" height="6" rx="3" fill="url(#goal)"/>'
+            f'<text x="{W - CARD_PAD}" y="{by + 6.5}" text-anchor="end" font-family="{MONO}" font-size="{CHIP}" '
+            f'fill="{ORANGE}">{escape(label)}</text>'
+        )
+        h += 22
+    body = _card(0, 0, W, h, it, chip, ORANGE, "#2a1a10", MONO) + bar
     return _wrap(W, int(h + 1), f'{it["title"]} — {desc_text(it)}', body, plate=False)
 
 
@@ -438,7 +472,7 @@ def activity(days: list[tuple[str, int]]) -> str:
 
 
 def streak(days: list[tuple[str, int]]) -> str:
-    """현재 연속 · 최장 연속 · 1년 합계. 오늘 아직 기여가 없으면 어제부터 센다."""
+    """현재 연속 · 최장 연속 · 1년 활동 일수. 오늘 아직 기여가 없으면 어제부터 센다."""
     counts = [c for _, c in days]
     cur = 0
     i = len(counts) - 1
@@ -451,7 +485,7 @@ def streak(days: list[tuple[str, int]]) -> str:
     for c in counts:
         run = run + 1 if c > 0 else 0
         longest = max(longest, run)
-    total = sum(counts)
+    active = sum(1 for c in counts if c > 0)
     show = (lambda v: str(v)) if days else (lambda v: "—")
     b = [
         f'<circle cx="104" cy="80" r="40" fill="none" stroke="{LINE}" stroke-width="6"/>',
@@ -461,11 +495,73 @@ def streak(days: list[tuple[str, int]]) -> str:
         f'<text x="104" y="146" text-anchor="middle" font-family="{MONO}" font-size="10" fill="{ORANGE}" letter-spacing="1">CURRENT STREAK</text>',
         f'<line x1="208" y1="30" x2="208" y2="140" stroke="{LINE}"/>',
     ]
-    for k, (lab, v, col) in enumerate([("LONGEST STREAK", show(longest), LILAC), ("TOTAL · 1Y", show(total), INK)]):
+    for k, (lab, v, col) in enumerate([("LONGEST STREAK", show(longest), LILAC), ("ACTIVE DAYS · 1Y", show(active), INK)]):
         yy = 52 + k * 62
         b.append(f'<text x="232" y="{yy}" font-family="{MONO}" font-size="10" fill="{MUTE}" letter-spacing="1">{lab}</text>')
         b.append(f'<text x="232" y="{yy + 30}" font-family="{MONO}" font-size="24" font-weight="800" fill="{col}">{v}</text>')
-    return _wrap(400, 170, f"current streak {cur}, longest {longest}, total {total}", "".join(b))
+    return _wrap(400, 170, f"current streak {cur}, longest {longest}, active days {active}", "".join(b))
+
+
+LANG_COLORS = [ORANGE, DEEP, VIOLET, LILAC, MUTE, FAINT]
+
+
+def languages(langs: dict[str, int]) -> str:
+    """카드 저장소들의 언어 비율 — 띠 하나와 범례. 상위 5개 + Other."""
+    W, H = 830, 120
+    x0, x1 = 44, 806
+    total = sum(langs.values())
+    top = sorted(langs.items(), key=lambda kv: -kv[1])[:5]
+    rest = total - sum(v for _, v in top)
+    if rest > 0:
+        top.append(("Other", rest))
+    b = [
+        f'<text x="{x0}" y="30" font-family="{MONO}" font-size="11" fill="{MUTE}" letter-spacing="1">LANGUAGES · ACROSS THE CARDS ABOVE</text>',
+        f'<clipPath id="lbar"><rect x="{x0}" y="44" width="{x1 - x0}" height="12" rx="6"/></clipPath>',
+        f'<rect x="{x0}" y="44" width="{x1 - x0}" height="12" rx="6" fill="{LINE}"/>',
+    ]
+    if total:
+        b.append('<g clip-path="url(#lbar)">')
+        x = float(x0)
+        for k, (_, v) in enumerate(top):
+            w = (x1 - x0) * v / total
+            b.append(f'<rect x="{x:.1f}" y="44" width="{max(w - 2, 0.5):.1f}" height="12" fill="{LANG_COLORS[k]}"/>')
+            x += w
+        b.append("</g>")
+        lx = float(x0)
+        for k, (name, v) in enumerate(top):
+            pct = f"{v / total * 100:.1f}%"
+            b.append(f'<circle cx="{lx + 4:.1f}" cy="84" r="4" fill="{LANG_COLORS[k]}"/>')
+            b.append(
+                f'<text x="{lx + 14:.1f}" y="88" font-family="{MONO}" font-size="11.5" fill="{INK}">{escape(name)}'
+                f'<tspan fill="{FAINT}"> {pct}</tspan></text>'
+            )
+            lx += 14 + text_w(f"{name} {pct}", 11.5) + 22
+    label = "languages — " + ", ".join(f"{n} {v / total * 100:.0f}%" for n, v in top) if total else "languages"
+    return _wrap(W, H, label, "".join(b))
+
+
+def weekday(days: list[tuple[str, int]]) -> str:
+    """1년 기여를 요일별로 — 월~일 막대 일곱 개. 제일 많은 요일만 주황."""
+    W, H = 830, 170
+    sums = [0] * 7
+    for d, c in days:
+        sums[dt.date.fromisoformat(d).weekday()] += c
+    top = max(sums) or 1
+    names = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
+    x0, x1, base, tall = 44, 806, 140, 92
+    slot = (x1 - x0) / 7
+    bw = 46
+    b = [f'<text x="{x0}" y="26" font-family="{MONO}" font-size="11" fill="{MUTE}" letter-spacing="1">CONTRIBUTIONS BY WEEKDAY · 1Y</text>']
+    for k, v in enumerate(sums):
+        cx = x0 + slot * k + slot / 2
+        hgt = max(3.0, tall * v / top)
+        col = ORANGE if v == top and v > 0 else DEEP
+        op = "1" if col == ORANGE else ".55"
+        b.append(f'<rect x="{cx - bw / 2:.1f}" y="{base - hgt:.1f}" width="{bw}" height="{hgt:.1f}" rx="4" fill="{col}" fill-opacity="{op}"/>')
+        b.append(f'<text x="{cx:.1f}" y="{base - hgt - 7:.1f}" text-anchor="middle" font-family="{MONO}" font-size="10.5" fill="{INK if col == ORANGE else MUTE}">{v}</text>')
+        b.append(f'<text x="{cx:.1f}" y="{base + 18}" text-anchor="middle" font-family="{MONO}" font-size="10" fill="{FAINT}" letter-spacing="1">{names[k]}</text>')
+    label = "contributions by weekday — " + ", ".join(f"{n} {v}" for n, v in zip(names, sums))
+    return _wrap(W, H, label, "".join(b))
 
 
 def static_assets() -> dict[str, str]:

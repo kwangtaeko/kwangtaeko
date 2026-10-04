@@ -5,7 +5,8 @@
     {
       "repo": "tgx-agent-mesh",
       "title": "tgx-agent-mesh",
-      "desc": "특정 도구에 묶이지 않는 범용 에이전트 플러그인."
+      "desc": "특정 도구에 묶이지 않는 범용 에이전트 플러그인.",
+      "star_goal": 100
     }
   ],
   "private": [

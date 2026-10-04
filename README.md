@@ -7,7 +7,7 @@
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/section-public.svg?v=67865fff" alt="public — the one to star" />
 
 <p align="center">
-  <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/card-public.svg?v=aa1906d3" alt="tgx-agent-mesh — 특정 도구에 묶이지 않는 범용 에이전트 플러그인." />
+  <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/card-public.svg?v=590e597e" alt="tgx-agent-mesh — 특정 도구에 묶이지 않는 범용 에이전트 플러그인." />
 </p>
 
 <br/>
@@ -25,7 +25,7 @@
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/section-private.svg?v=583cd3e7" alt="built in private — code stays home" />
 
 <p align="center">
-  <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/cards-private.svg?v=0cb46228" alt="built in private — TG Platform, TGX Agent Chatbot, TG-Nova, 시장장터, 네오뮤직, TG Launcher" />
+  <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/cards-private.svg?v=e5eb0bb2" alt="built in private — TG Platform, TGX Agent Chatbot, TG-Nova, 시장장터, 네오뮤직, TG Launcher" />
 </p>
 
 <p align="center"><sub>+12 more in private · 아키텍처와 설계 결정은 <a href="https://tonygwangsk.dev">tonygwangsk.dev</a> 에</sub></p>
@@ -44,6 +44,8 @@
 </p>
 
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/activity.svg?v=c0c44eb1" alt="contributions in the last 31 days" />
+
+<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/languages.svg?v=74390086" alt="languages across the private cards" />
 
 <br/>
 
