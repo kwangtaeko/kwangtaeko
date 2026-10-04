@@ -256,9 +256,14 @@ def main() -> int:
         chip is not None,
     )
 
-    # 비공개 카드 — 토큰이 없으면 칩만 '● private'. 토큰이 있는데 하나도 못 읽었으면 이전 그림 유지.
+    # 비공개 카드 — 토큰이 없으면 칩만 '● private'. 토큰이 있는데 하나도 못 읽었거나
+    # --offline(로컬 실행)이면 이전 그림 유지 — 봇이 붙여 둔 시각 칩을 지우지 않게.
     pushed, pushed_ok = fetch_pushed(owner, cfg["private"], pat)
-    keep_or("cards-private.svg", lambda: assets.cards_private(cfg["private"], pushed), not pat or bool(pushed))
+    keep_or(
+        "cards-private.svg",
+        lambda: assets.cards_private(cfg["private"], pushed),
+        bool(pushed) or (not pat and not args.offline),
+    )
     langs = fetch_languages(owner, cfg["private"], pat)
     keep_or("languages.svg", lambda: assets.languages(langs), bool(langs))
 
