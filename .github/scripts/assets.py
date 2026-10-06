@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import datetime as dt
 import math
+import random
 from html import escape
 
 BG = "#100e0d"
@@ -71,24 +72,8 @@ def hero(plugin_label: str) -> str:
         '<path id="he1" d="M640 160 L515 95"/><path id="he3" d="M640 160 L775 205"/>'
         '<path id="he5" d="M640 160 L560 270"/></defs>'
     )
-    # 왼쪽 — 브랜드 마크와 한 줄
-    # TGX. 는 가로 그라데이션(호박 → 주황 → 라일락)으로 칠하고, 그 위로 흰 빛 띠가
-    # 왼쪽에서 오른쪽으로 천천히 지나간다.
-    a(
-        '<defs><linearGradient id="tgxfill" x1="0" x2="1" y1="0" y2="0">'
-        f'<stop offset="0" stop-color="#fdba74"/><stop offset=".5" stop-color="{ORANGE}"/>'
-        f'<stop offset="1" stop-color="{LILAC}"/></linearGradient>'
-        '<linearGradient id="tgxshine" x1="0" x2="300" y1="0" y2="0" gradientUnits="userSpaceOnUse" '
-        'gradientTransform="translate(-90 0)">'
-        '<stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".06" stop-color="#fff" stop-opacity="0"/>'
-        '<stop offset=".14" stop-color="#fff" stop-opacity=".95"/><stop offset=".22" stop-color="#fff" stop-opacity="0"/>'
-        '<stop offset="1" stop-color="#fff" stop-opacity="0"/>'
-        '<animateTransform attributeName="gradientTransform" type="translate" values="-90 0;210 0;210 0" '
-        'keyTimes="0;.7;1" dur="4s" repeatCount="indefinite"/></linearGradient></defs>'
-    )
-    mark = f'x="34" y="128" font-family="{MONO}" font-size="64" font-weight="800" letter-spacing="-2"'
-    a(f'<text {mark} fill="url(#tgxfill)">TGX.</text>')
-    a(f'<text {mark} fill="url(#tgxshine)">TGX.</text>')
+    # 왼쪽 — 브랜드 마크와 한 줄. TGX 는 노드 점으로 찍은 도트 글자다(_dot_mark).
+    a(_dot_mark())
     a('<rect x="36" y="160" width="3" height="34" rx="1.5" fill="url(#hbar)"/>')
     a(
         f'<text x="50" y="184" font-family="{SANS}" font-size="19" font-weight="650" '
@@ -699,6 +684,58 @@ def grass(days: list[tuple[str, int]]) -> str:
         )
     b.append(f'<text x="{W - gx}" y="206" text-anchor="end" font-family="{MONO}" font-size="11" fill="{FAINT}">human decides · agents verify</text>')
     return _wrap(W, H, f"TGX agents verifying {total} contributions over the last year", "".join(b))
+
+
+# ── TGX. 도트 마크 ────────────────────────────────────────────────
+# 5×7 도트 글꼴. '#' 이 켜지는 점이다.
+DOT_GLYPH = {
+    "T": ["#####", "..#..", "..#..", "..#..", "..#..", "..#..", "..#.."],
+    "G": [".###.", "#...#", "#....", "#.###", "#...#", "#...#", ".###."],
+    "X": ["#...#", "#...#", ".#.#.", "..#..", ".#.#.", "#...#", "#...#"],
+}
+
+
+def _dot_mark() -> str:
+    """TGX 를 노드 점으로 찍은 도트 글자. 오른쪽 에이전트 메시 쪽(X)부터 점이 하나씩
+    켜지며 글자가 조립되고, 다 켜지면 점 몇 개가 반짝인 뒤 다시 조립된다. 7초마다.
+    반짝일 점과 켜지는 순서의 흔들림은 고정 시드로 정해 매번 같은 그림이 나온다."""
+    dur, pitch = 7, 8.6
+    x0, y0 = 34 + pitch / 2, 130 - 7 * pitch + pitch / 2
+    rnd = random.Random(5)
+    b = []
+    for li, ch in enumerate("TGX"):
+        for r, row in enumerate(DOT_GLYPH[ch]):
+            for c, v in enumerate(row):
+                col = li * 6 + c
+                x, y = x0 + col * pitch, y0 + r * pitch
+                if v != "#":
+                    b.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="1.5" fill="{DOT}"/>')
+                    continue
+                t = 0.05 + 0.5 * (16 - col) / 16 + r * 0.008 + rnd.uniform(0, 0.02)
+                lit = "#fdba74" if r < 3 else ORANGE
+                tw = ""
+                if rnd.random() < 0.22:
+                    a = rnd.uniform(0.65, 0.85)
+                    tw = (
+                        f'<animate attributeName="r" dur="{dur}s" repeatCount="indefinite" '
+                        f'values="3.4;3.4;4.2;3.4;3.4" keyTimes="{_kt(0, a, a + 0.02, a + 0.05, 1)}"/>'
+                    )
+                b.append(
+                    f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3.4" fill="{DOT}">'
+                    f'<animate attributeName="fill" calcMode="discrete" dur="{dur}s" repeatCount="indefinite" '
+                    f'values="{DOT};#fff3e6;{lit};{DOT}" keyTimes="{_kt(0, t, t + 0.025, 0.93)}"/>{tw}</circle>'
+                )
+    # 마지막에 찍히는 점(.) — 주황 노드가 튀어나오며 고리가 한 번 퍼진다
+    dx, dy, t = 34 + 17 * pitch + 15, y0 + 6 * pitch, 0.62
+    b.append(
+        f'<circle cx="{dx:.1f}" cy="{dy:.1f}" r="7" fill="{ORANGE}" opacity="0">'
+        f'<animate attributeName="opacity" calcMode="discrete" dur="{dur}s" repeatCount="indefinite" values="0;1;0" keyTimes="{_kt(0, t, 0.94)}"/>'
+        f'<animate attributeName="r" dur="{dur}s" repeatCount="indefinite" values="0;0;10;7;7" keyTimes="{_kt(0, t, t + 0.03, t + 0.06, 1)}"/></circle>'
+        f'<circle cx="{dx:.1f}" cy="{dy:.1f}" r="7" fill="none" stroke="{ORANGE}" stroke-width="1.5" opacity="0">'
+        f'<animate attributeName="r" dur="{dur}s" repeatCount="indefinite" values="7;7;26;26" keyTimes="{_kt(0, t, t + 0.12, 1)}"/>'
+        f'<animate attributeName="opacity" dur="{dur}s" repeatCount="indefinite" values="0;0;.9;0;0" keyTimes="{_kt(0, t, t + 0.01, t + 0.12, 1)}"/></circle>'
+    )
+    return "".join(b)
 
 
 def static_assets() -> dict[str, str]:
