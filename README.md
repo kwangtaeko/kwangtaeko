@@ -1,7 +1,7 @@
 <!-- 이 파일은 자동 생성된다. 고칠 곳은 .github/README.template.md 와 .github/repos.json -->
 
 <p align="center">
-  <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/hero.svg?v=a1ad1859" alt="TGX — Agents, leading what's next." />
+  <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/hero.svg?v=de226982" alt="TGX — Agents, leading what's next." />
 </p>
 
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/section-public.svg?v=67865fff" alt="public — the one to star" />
@@ -51,10 +51,6 @@
 
 <br/>
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/output/snake-dark.svg" />
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/output/snake-light.svg" />
-  <img alt="contribution snake" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/output/snake-dark.svg" width="100%" />
-</picture>
+<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/grass.svg?v=7389b6d1" alt="TGX agents verifying a year of contributions" />
 
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/footer.svg?v=431ac485" alt="TGX" />

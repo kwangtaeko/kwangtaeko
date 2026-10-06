@@ -15,6 +15,7 @@ GitHub 은 README 의 SVG 를 <img> 로 그리므로 외부 폰트·스크립트
 from __future__ import annotations
 
 import datetime as dt
+import math
 from html import escape
 
 BG = "#100e0d"
@@ -70,10 +71,39 @@ def hero(plugin_label: str) -> str:
         '<path id="he5" d="M640 160 L560 270"/></defs>'
     )
     # 왼쪽 — 브랜드 마크와 한 줄
+    # TGX 는 위에서 아래로 식어 가는 쇳물 색(흰빛 → 주황 → 잉걸)이고, 글자 윤곽을 따라
+    # 짧은 빛 조각이 회로의 신호처럼 흐른다. 점(.)은 살아 있는 노드라 맥박이 퍼지고,
+    # 이따금 신호 하나가 오른쪽 에이전트 메시의 TGX 노드로 날아간다.
     a(
-        f'<text x="34" y="128" font-family="{MONO}" font-size="64" font-weight="800" '
-        f'fill="{INK}" letter-spacing="-2">TGX<tspan fill="{ORANGE}">.</tspan></text>'
+        '<defs><linearGradient id="tgxfill" x1="0" x2="0" y1="0" y2="1">'
+        '<stop offset="0" stop-color="#fff3e6"/><stop offset=".38" stop-color="#fdba74"/>'
+        f'<stop offset=".72" stop-color="{ORANGE}"/><stop offset="1" stop-color="{DEEP}"/></linearGradient></defs>'
     )
+    mark = (
+        f'x="34" y="128" font-family="{MONO}" font-size="64" font-weight="800" '
+        'textLength="126" lengthAdjust="spacingAndGlyphs"'
+    )
+    a(f'<text {mark} fill="url(#tgxfill)">TGX</text>')
+    a(
+        f'<text {mark} fill="none" stroke="#ffe8d1" stroke-width="1.3" stroke-linecap="round" '
+        'stroke-dasharray="9 27" opacity=".9">TGX'
+        '<animate attributeName="stroke-dashoffset" values="0;-144" dur="3.2s" repeatCount="indefinite"/></text>'
+    )
+    dx, dy = 174, 121
+    a(f'<path id="hsig" d="M{dx} {dy} L640 160" fill="none" stroke="{LINE}" stroke-dasharray="2 6" opacity=".7"/>')
+    a(
+        f'<circle r="3" fill="{ORANGE}" opacity="0"><animateMotion dur="4.8s" repeatCount="indefinite" '
+        'keyPoints="0;0;1;1" keyTimes="0;.55;.8;1" calcMode="linear"><mpath xlink:href="#hsig"/></animateMotion>'
+        '<animate attributeName="opacity" dur="4.8s" repeatCount="indefinite" values="0;0;1;1;0;0" '
+        'keyTimes="0;.55;.57;.78;.8;1"/></circle>'
+    )
+    for beg in ("0s", "-1.2s"):
+        a(
+            f'<circle cx="{dx}" cy="{dy}" r="7" fill="none" stroke="{ORANGE}" stroke-width="1.5">'
+            f'<animate attributeName="r" values="7;24" dur="2.4s" begin="{beg}" repeatCount="indefinite"/>'
+            f'<animate attributeName="opacity" values=".8;0" dur="2.4s" begin="{beg}" repeatCount="indefinite"/></circle>'
+        )
+    a(f'<circle cx="{dx}" cy="{dy}" r="7" fill="{ORANGE}"/>')
     a('<rect x="36" y="160" width="3" height="34" rx="1.5" fill="url(#hbar)"/>')
     a(
         f'<text x="50" y="184" font-family="{SANS}" font-size="19" font-weight="650" '
@@ -552,6 +582,115 @@ def weekday(days: list[tuple[str, int]]) -> str:
         b.append(f'<text x="{cx:.1f}" y="{base + 18}" text-anchor="middle" font-family="{MONO}" font-size="10" fill="{FAINT}" letter-spacing="1">{names[k]}</text>')
     label = "contributions by weekday — " + ", ".join(f"{n} {v}" for n, v in zip(names, sums))
     return _wrap(W, H, label, "".join(b))
+
+
+
+# ── 잔디 — 에이전트가 1년치 기여를 검증한다 ────────────────────────
+GRASS_LV = ["#3b2416", "#6b3413", DEEP, ORANGE]
+GRASS_DIM = "#241f1c"
+G_STEP, G_CELL = 14, 11
+
+
+def _kt(*xs: float) -> str:
+    return ";".join("0" if x == 0 else "1" if x == 1 else f"{x:.4f}".rstrip("0").rstrip(".") for x in xs)
+
+
+def _visible(intervals: list[tuple[float, float]], dur: int) -> str:
+    """[(a, b), ...] 구간에만 보이는 discrete opacity 애니메이션."""
+    times, vals = [0.0], ["0"]
+    for a, b in intervals:
+        if a <= 0:
+            vals[0] = "1"
+        else:
+            times.append(a)
+            vals.append("1")
+        if b < 1:
+            times.append(b)
+            vals.append("0")
+    return (
+        f'<animate attributeName="opacity" calcMode="discrete" dur="{dur}s" repeatCount="indefinite" '
+        f'values="{";".join(vals)}" keyTimes="{_kt(*times)}"/>'
+    )
+
+
+def grass(days: list[tuple[str, int]]) -> str:
+    """잔디 격자 위를 에이전트 넷(plan · code · test · review)이 돌며 기여한 칸을 날짜순으로
+    하나씩 켠다. 진행 막대 대신 아래 줄의 verified 숫자가 올라간다. 16초마다 처음부터."""
+    W, H, dur = 830, 224, 16
+    total = sum(c for _, c in days)
+    b = [f'<text x="46" y="30" font-family="{MONO}" font-size="11" fill="{MUTE}" letter-spacing="1">TGX AGENTS · VERIFYING A YEAR OF WORK</text>']
+    if not days:
+        return _wrap(W, H, "TGX agents", "".join(b))
+    # 칸 위치는 날짜로 정한다 — 열은 주, 행은 요일(일요일이 맨 위)
+    d0 = dt.date.fromisoformat(days[0][0])
+    off = (d0.weekday() + 1) % 7
+    pos = []
+    for d, _ in days:
+        k = (dt.date.fromisoformat(d) - d0).days + off
+        pos.append((k // 7, k % 7))
+    cols = pos[-1][0] + 1
+    gx = (W - (cols * G_STEP - 3)) // 2
+    gy = 46
+    b[0] = b[0].replace('x="46"', f'x="{gx}"')
+
+    def cxy(i: int) -> tuple[float, float]:
+        c, r = pos[i]
+        return gx + c * G_STEP, gy + r * G_STEP
+
+    mx = max(c for _, c in days) or 1
+    act = [i for i, (_, c) in enumerate(days) if c]
+    n = len(act)
+    t_at = {i: 0.06 + 0.78 * k / max(n - 1, 1) for k, i in enumerate(act)}
+    for i, (_, c) in enumerate(days):
+        x, y = cxy(i)
+        if not c:
+            b.append(f'<rect x="{x}" y="{y}" width="{G_CELL}" height="{G_CELL}" rx="2.5" fill="{GRASS_DIM}"/>')
+            continue
+        t = t_at[i]
+        col = GRASS_LV[min(3, int(math.log1p(c) / math.log1p(mx) * 4))]
+        b.append(
+            f'<rect x="{x}" y="{y}" width="{G_CELL}" height="{G_CELL}" rx="2.5" fill="{GRASS_DIM}">'
+            f'<animate attributeName="fill" calcMode="discrete" dur="{dur}s" repeatCount="indefinite" '
+            f'values="{GRASS_DIM};{col};{GRASS_DIM}" keyTimes="{_kt(0, t, 0.96)}"/></rect>'
+            f'<rect x="{x - 2}" y="{y - 2}" width="{G_CELL + 4}" height="{G_CELL + 4}" rx="4" fill="none" stroke="{ORANGE}" opacity="0">'
+            f'<animate attributeName="opacity" dur="{dur}s" repeatCount="indefinite" values="0;0;1;0;0" '
+            f'keyTimes="{_kt(0, t, t + 0.004, min(t + 0.05, 0.99), 1)}"/></rect>'
+        )
+    # 에이전트 넷 — 기여한 칸을 날짜순으로 돌아가며 맡는다
+    agents = [("plan", ORANGE), ("code", ORANGE), ("test", LILAC), ("review", VIOLET)]
+    for k, (name, col) in enumerate(agents):
+        hx, hy = gx + 90 + k * 190, 166
+        b.append(f'<circle cx="{hx}" cy="{hy}" r="6" fill="none" stroke="{col}" stroke-opacity=".5" stroke-dasharray="2 3"/>')
+        b.append(f'<text x="{hx + 12}" y="{hy + 4}" font-family="{MONO}" font-size="10.5" fill="{FAINT}">{name}</text>')
+        pts, times = [(hx, hy), (hx, hy)], [0.0, 0.03]
+        for i in act[k::4]:
+            x, y = cxy(i)
+            pts.append((x + G_CELL / 2, y + G_CELL / 2))
+            times.append(t_at[i])
+        pts += [(hx, hy), (hx, hy)]
+        times += [0.9, 1.0]
+        vals = ";".join(f"{x:.1f} {y:.1f}" for x, y in pts)
+        b.append(
+            f'<g><animateTransform attributeName="transform" type="translate" dur="{dur}s" repeatCount="indefinite" '
+            f'values="{vals}" keyTimes="{_kt(*times)}"/>'
+            f'<circle r="11" fill="{col}" opacity=".18"/><circle r="5" fill="{col}"/><circle r="2" fill="{BG}"/></g>'
+        )
+    # verified 숫자 — 스물네 단계로 올라간다. SMIL 은 글자를 바꿀 수 없어 단계마다 한 줄씩 겹쳐 둔다
+    steps = []
+    for st in range(25):
+        t = 0.06 + 0.78 * st / 24
+        done = sum(days[i][1] for i in act if t_at[i] <= t + 1e-9)
+        steps.append((0.0 if st == 0 else t, done))
+    for k, (t, v) in enumerate(steps):
+        nxt = steps[k + 1][0] if k + 1 < len(steps) else 0.96
+        iv = [(t, nxt)] + ([(0.96, 1.0)] if k == 0 else [])
+        b.append(
+            f'<text x="{gx}" y="206" font-family="{MONO}" font-size="12" fill="{INK}" opacity="0">'
+            f'<tspan fill="{ORANGE}">▸</tspan> verified <tspan fill="{ORANGE}" font-weight="700">{v:,}</tspan>'
+            f'<tspan fill="{FAINT}"> / {total:,} contributions · 1y</tspan>{_visible(iv, dur)}</text>'
+        )
+    b.append(f'<text x="{W - gx}" y="206" text-anchor="end" font-family="{MONO}" font-size="11" fill="{FAINT}">human decides · agents verify</text>')
+    return _wrap(W, H, f"TGX agents verifying {total} contributions over the last year", "".join(b))
 
 
 def static_assets() -> dict[str, str]:

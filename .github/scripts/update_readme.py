@@ -252,6 +252,7 @@ def main() -> int:
     keep_or("activity.svg", lambda: assets.activity(days), bool(stats))
     keep_or("streak.svg", lambda: assets.streak(days), bool(stats))
     keep_or("weekday.svg", lambda: assets.weekday(days), bool(stats))
+    keep_or("grass.svg", lambda: assets.grass(days), bool(stats))
 
     for name, svg in files.items():
         (ASSETS / name).write_text(svg, encoding="utf-8")

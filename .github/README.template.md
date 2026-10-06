@@ -60,10 +60,6 @@
 
 <br/>
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/output/snake-dark.svg" />
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/output/snake-light.svg" />
-  <img alt="contribution snake" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/output/snake-dark.svg" width="100%" />
-</picture>
+<img width="100%" src="{{asset:grass.svg}}" alt="TGX agents verifying a year of contributions" />
 
 <img width="100%" src="{{asset:footer.svg}}" alt="TGX" />
