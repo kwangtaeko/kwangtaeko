@@ -30,6 +30,7 @@ LILAC = "#b79cf0"
 INK = "#f2e9e3"
 MUTE = "#a99a90"
 LIVE = "#3fb950"  # 켜져 있음 표시등 — 초록
+LIVE_INK = "#8ce3a4"
 FAINT = "#6f625a"
 
 MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace"
@@ -343,23 +344,27 @@ def _card(
     if live:
         cw += 14
     cx0 = w - CARD_PAD - cw
-    p.append(f'<rect x="{cx0:.1f}" y="18" width="{cw:.1f}" height="20" rx="10" fill="{chip_bg}"/>')
     if live:
-        # 켜져 있는 표시등 — 천천히 밝아졌다 어두워진다. 카드마다 박자를 조금씩 어긋나게.
+        # 켜져 있는 표시 — 칩 전체(바탕 · 테두리 · 점)가 초록으로 천천히 밝아졌다 어두워진다.
+        # 카드마다 박자를 조금씩 어긋나게.
         anim = (
-            f'dur="2.8s" begin="-{phase:.2f}s" repeatCount="indefinite" calcMode="spline" '
+            f'dur="3s" begin="-{phase:.2f}s" repeatCount="indefinite" calcMode="spline" '
             'keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1"'
         )
         p.append(
-            f'<circle cx="{cx0 + 12:.1f}" cy="28" r="6" fill="{live}" opacity=".15">'
-            f'<animate attributeName="opacity" values=".05;.35;.05" {anim}/></circle>'
-            f'<circle cx="{cx0 + 12:.1f}" cy="28" r="3.2" fill="{live}">'
+            f'<rect x="{cx0:.1f}" y="18" width="{cw:.1f}" height="20" rx="10" fill="{chip_bg}"/>'
+            f'<rect x="{cx0:.1f}" y="18" width="{cw:.1f}" height="20" rx="10" fill="{live}" stroke="{live}" '
+            f'fill-opacity=".1" stroke-opacity=".3"><animate attributeName="fill-opacity" values=".04;.26;.04" {anim}/>'
+            f'<animate attributeName="stroke-opacity" values=".15;.9;.15" {anim}/></rect>'
+            f'<circle cx="{cx0 + 12:.1f}" cy="28" r="8" fill="{live}" opacity=".2">'
+            f'<animate attributeName="opacity" values="0;.45;0" {anim}/></circle>'
+            f'<circle cx="{cx0 + 12:.1f}" cy="28" r="3.8" fill="{live}">'
             f'<animate attributeName="opacity" values=".35;1;.35" {anim}/></circle>'
-        )
-        p.append(
-            f'<text x="{cx0 + 21:.1f}" y="31.5" font-family="{MONO}" font-size="{CHIP}" fill="{chip_col}">{escape(chip)}</text>'
+            f'<text x="{cx0 + 21:.1f}" y="31.5" font-family="{MONO}" font-size="{CHIP}" fill="{LIVE_INK}">{escape(chip)}'
+            f'<animate attributeName="fill-opacity" values=".55;1;.55" {anim}/></text>'
         )
     else:
+        p.append(f'<rect x="{cx0:.1f}" y="18" width="{cw:.1f}" height="20" rx="10" fill="{chip_bg}"/>')
         p.append(
             f'<text x="{cx0 + cw / 2:.1f}" y="31.5" text-anchor="middle" font-family="{MONO}" '
             f'font-size="{CHIP}" fill="{chip_col}">{escape(chip)}</text>'
