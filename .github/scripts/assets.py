@@ -28,6 +28,7 @@ VIOLET = "#7c4dd6"
 LILAC = "#b79cf0"
 INK = "#f2e9e3"
 MUTE = "#a99a90"
+LIVE = "#3fb950"  # 켜져 있음 표시등 — 초록
 FAINT = "#6f625a"
 
 MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace"
@@ -71,39 +72,23 @@ def hero(plugin_label: str) -> str:
         '<path id="he5" d="M640 160 L560 270"/></defs>'
     )
     # 왼쪽 — 브랜드 마크와 한 줄
-    # TGX 는 위에서 아래로 식어 가는 쇳물 색(흰빛 → 주황 → 잉걸)이고, 글자 윤곽을 따라
-    # 짧은 빛 조각이 회로의 신호처럼 흐른다. 점(.)은 살아 있는 노드라 맥박이 퍼지고,
-    # 이따금 신호 하나가 오른쪽 에이전트 메시의 TGX 노드로 날아간다.
+    # TGX. 는 가로 그라데이션(호박 → 주황 → 라일락)으로 칠하고, 그 위로 흰 빛 띠가
+    # 왼쪽에서 오른쪽으로 천천히 지나간다.
     a(
-        '<defs><linearGradient id="tgxfill" x1="0" x2="0" y1="0" y2="1">'
-        '<stop offset="0" stop-color="#fff3e6"/><stop offset=".38" stop-color="#fdba74"/>'
-        f'<stop offset=".72" stop-color="{ORANGE}"/><stop offset="1" stop-color="{DEEP}"/></linearGradient></defs>'
+        '<defs><linearGradient id="tgxfill" x1="0" x2="1" y1="0" y2="0">'
+        f'<stop offset="0" stop-color="#fdba74"/><stop offset=".5" stop-color="{ORANGE}"/>'
+        f'<stop offset="1" stop-color="{LILAC}"/></linearGradient>'
+        '<linearGradient id="tgxshine" x1="0" x2="300" y1="0" y2="0" gradientUnits="userSpaceOnUse" '
+        'gradientTransform="translate(-90 0)">'
+        '<stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".06" stop-color="#fff" stop-opacity="0"/>'
+        '<stop offset=".14" stop-color="#fff" stop-opacity=".95"/><stop offset=".22" stop-color="#fff" stop-opacity="0"/>'
+        '<stop offset="1" stop-color="#fff" stop-opacity="0"/>'
+        '<animateTransform attributeName="gradientTransform" type="translate" values="-90 0;210 0;210 0" '
+        'keyTimes="0;.7;1" dur="4s" repeatCount="indefinite"/></linearGradient></defs>'
     )
-    mark = (
-        f'x="34" y="128" font-family="{MONO}" font-size="64" font-weight="800" '
-        'textLength="126" lengthAdjust="spacingAndGlyphs"'
-    )
-    a(f'<text {mark} fill="url(#tgxfill)">TGX</text>')
-    a(
-        f'<text {mark} fill="none" stroke="#ffe8d1" stroke-width="1.3" stroke-linecap="round" '
-        'stroke-dasharray="9 27" opacity=".9">TGX'
-        '<animate attributeName="stroke-dashoffset" values="0;-144" dur="3.2s" repeatCount="indefinite"/></text>'
-    )
-    dx, dy = 174, 121
-    a(f'<path id="hsig" d="M{dx} {dy} L640 160" fill="none" stroke="{LINE}" stroke-dasharray="2 6" opacity=".7"/>')
-    a(
-        f'<circle r="3" fill="{ORANGE}" opacity="0"><animateMotion dur="4.8s" repeatCount="indefinite" '
-        'keyPoints="0;0;1;1" keyTimes="0;.55;.8;1" calcMode="linear"><mpath xlink:href="#hsig"/></animateMotion>'
-        '<animate attributeName="opacity" dur="4.8s" repeatCount="indefinite" values="0;0;1;1;0;0" '
-        'keyTimes="0;.55;.57;.78;.8;1"/></circle>'
-    )
-    for beg in ("0s", "-1.2s"):
-        a(
-            f'<circle cx="{dx}" cy="{dy}" r="7" fill="none" stroke="{ORANGE}" stroke-width="1.5">'
-            f'<animate attributeName="r" values="7;24" dur="2.4s" begin="{beg}" repeatCount="indefinite"/>'
-            f'<animate attributeName="opacity" values=".8;0" dur="2.4s" begin="{beg}" repeatCount="indefinite"/></circle>'
-        )
-    a(f'<circle cx="{dx}" cy="{dy}" r="7" fill="{ORANGE}"/>')
+    mark = f'x="34" y="128" font-family="{MONO}" font-size="64" font-weight="800" letter-spacing="-2"'
+    a(f'<text {mark} fill="url(#tgxfill)">TGX.</text>')
+    a(f'<text {mark} fill="url(#tgxshine)">TGX.</text>')
     a('<rect x="36" y="160" width="3" height="34" rx="1.5" fill="url(#hbar)"/>')
     a(
         f'<text x="50" y="184" font-family="{SANS}" font-size="19" font-weight="650" '
@@ -361,17 +346,39 @@ DESC_LH = 19
 CHIP = 10.5
 
 
-def _card(x: float, y: float, w: float, h: float, it: dict, chip: str, chip_col: str, chip_bg: str, title_font: str) -> str:
+def _card(
+    x: float, y: float, w: float, h: float, it: dict, chip: str, chip_col: str, chip_bg: str, title_font: str,
+    live: str | None = None, phase: float = 0.0,
+) -> str:
     """카드 한 장. 칩은 제목과 같은 줄, 오른쪽 위에 붙는다."""
     p = []
     p.append(f'<g transform="translate({x} {y})">')
     p.append(f'<rect width="{w}" height="{h}" rx="10" fill="{CARD}" stroke="{LINE}"/>')
     cw = len(chip) * CHIP * 0.62 + 20  # 칩 글자는 고정폭(모노)이라 글자 수로 잰다
-    p.append(f'<rect x="{w - CARD_PAD - cw:.1f}" y="18" width="{cw:.1f}" height="20" rx="10" fill="{chip_bg}"/>')
-    p.append(
-        f'<text x="{w - CARD_PAD - cw / 2:.1f}" y="31.5" text-anchor="middle" font-family="{MONO}" '
-        f'font-size="{CHIP}" fill="{chip_col}">{escape(chip)}</text>'
-    )
+    if live:
+        cw += 14
+    cx0 = w - CARD_PAD - cw
+    p.append(f'<rect x="{cx0:.1f}" y="18" width="{cw:.1f}" height="20" rx="10" fill="{chip_bg}"/>')
+    if live:
+        # 켜져 있는 표시등 — 천천히 밝아졌다 어두워진다. 카드마다 박자를 조금씩 어긋나게.
+        anim = (
+            f'dur="2.8s" begin="-{phase:.2f}s" repeatCount="indefinite" calcMode="spline" '
+            'keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1"'
+        )
+        p.append(
+            f'<circle cx="{cx0 + 12:.1f}" cy="28" r="6" fill="{live}" opacity=".15">'
+            f'<animate attributeName="opacity" values=".05;.35;.05" {anim}/></circle>'
+            f'<circle cx="{cx0 + 12:.1f}" cy="28" r="3.2" fill="{live}">'
+            f'<animate attributeName="opacity" values=".35;1;.35" {anim}/></circle>'
+        )
+        p.append(
+            f'<text x="{cx0 + 21:.1f}" y="31.5" font-family="{MONO}" font-size="{CHIP}" fill="{chip_col}">{escape(chip)}</text>'
+        )
+    else:
+        p.append(
+            f'<text x="{cx0 + cw / 2:.1f}" y="31.5" text-anchor="middle" font-family="{MONO}" '
+            f'font-size="{CHIP}" fill="{chip_col}">{escape(chip)}</text>'
+        )
     p.append(
         f'<text x="{CARD_PAD}" y="34" font-family="{title_font}" font-size="{TITLE}" font-weight="700" '
         f'fill="{INK}">{escape(it["title"])}</text>'
@@ -428,7 +435,8 @@ def cards_private(items: list[dict]) -> str:
         row = items[i : i + 2]
         h = max(_card_h(it, cw) for it in row)
         for j, it in enumerate(row):
-            parts.append(_card(j * (cw + GAP), y, cw, h, it, "● private", MUTE, LINE, SANS))
+            n = len(parts)
+            parts.append(_card(j * (cw + GAP), y, cw, h, it, "private", MUTE, LINE, SANS, live=LIVE, phase=n * 0.45))
         y += h + GAP
     H = int(y - GAP + 1)
     label = "built in private — " + ", ".join(it["title"] for it in items)
