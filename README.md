@@ -43,7 +43,7 @@
   <img height="170" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/streak.svg?v=5eb6dc84" alt="streak" />
 </p>
 
-<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/activity.svg?v=305aa622" alt="contributions in the last 31 days" />
+<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/activity.svg?v=8a74204d" alt="contributions in the last 31 days" />
 
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/languages.svg?v=31d87f13" alt="languages across the private cards" />
 
@@ -51,6 +51,6 @@
 
 <br/>
 
-<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/grass.svg?v=f162e95f" alt="TGX agents verifying a year of contributions" />
+<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/grass.svg?v=fa57615f" alt="TGX agents verifying a year of contributions" />
 
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/footer.svg?v=431ac485" alt="TGX" />
