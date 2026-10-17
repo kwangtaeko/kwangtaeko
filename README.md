@@ -15,8 +15,8 @@
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/section-plugins.svg?v=e6bd5073" alt="plugins — install in two lines" />
 
 <p align="center">
-  <a href="https://github.com/kwangtaeko/tgx-docent"><img width="49%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/card-plugin-tgx-docent.svg?v=e9cc9c40" alt="docent — 웹앱 소스로 화면 목록 · 사용자 매뉴얼을 만드는 플러그인. 모든 서술에 파일:줄 근거, 캡처 · 조작 GIF까지 HTML · PDF · PPT 로." /></a>
-  <a href="https://github.com/kwangtaeko/test-guard"><img width="49%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/card-plugin-test-guard.svg?v=cf4ff8ba" alt="test-guard — 에이전트가 테스트를 지우거나 skip 해서 통과시키는 걸 막는다. 에이전트 훅 · commit-msg 훅 · GitHub Action 세 곳, LLM 없이." /></a>
+  <a href="https://github.com/kwangtaeko/tgx-docent"><img width="49%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/card-plugin-tgx-docent.svg?v=724267e8" alt="tgx-docent — 웹앱 소스로 화면 목록 · 사용자 매뉴얼을 만드는 플러그인. 모든 서술에 파일:줄 근거, 캡처 · 조작 GIF까지 HTML · PDF · PPT 로." /></a>
+  <a href="https://github.com/kwangtaeko/test-guard"><img width="49%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/card-plugin-test-guard.svg?v=1202a1f2" alt="test-guard — 에이전트가 테스트를 지우거나 skip 해서 통과시키는 걸 막는다. 에이전트 훅 · commit-msg 훅 · GitHub Action 세 곳, LLM 없이." /></a>
 </p>
 
 <br/>
