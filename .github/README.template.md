@@ -5,6 +5,7 @@
   자리표시:
     {{asset:파일명}}  assets/ 의 파일을 내용 해시가 붙은 raw 주소로 (캐시 무력화)
     {{PUBLIC}}        공개 플러그인 카드 그림(저장소가 공개되면 링크로 감싸짐)
+    {{PLUGINS}}       공개 플러그인 카드들(2장씩 한 줄, 각각 저장소 링크)
     {{MORE}}          비공개 저장소 나머지 개수
 
   카드 · 꺾은선 · 연속 기록은 전부 assets/ 의 SVG 다. GitHub 은 README 의 색과
@@ -18,6 +19,12 @@
 <img width="100%" src="{{asset:section-public.svg}}" alt="public — the one to star" />
 
 {{PUBLIC}}
+
+<br/>
+
+<img width="100%" src="{{asset:section-plugins.svg}}" alt="plugins — install in two lines" />
+
+{{PLUGINS}}
 
 <br/>
 

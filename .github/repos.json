@@ -1,5 +1,5 @@
 {
-  "_comment": "README 카드의 원본. public 은 스타 수를 실제로 조회하고, private 는 적힌 그대로 그린다. private desc 는 [무엇, 핵심 기능] 두 줄. 순서가 곧 화면 순서(2열).",
+  "_comment": "README 카드의 원본. public 은 스타 수를 실제로 조회하고, private 는 적힌 그대로 그린다. private desc 는 [무엇, 핵심 기능] 두 줄. 순서가 곧 화면 순서(2열). plugins 는 공개 플러그인 — 2열 카드에 스타 수와 설치 명령 두 줄.",
   "owner": "kwangtaeko",
   "public": [
     {
@@ -7,6 +7,22 @@
       "title": "tgx-agent-mesh",
       "desc": "특정 도구에 묶이지 않는 범용 에이전트 플러그인.",
       "star_goal": 100
+    }
+  ],
+  "plugins": [
+    {
+      "repo": "tgx-docent",
+      "title": "docent",
+      "desc": ["웹앱 소스로 화면 목록 · 사용자 매뉴얼을 만드는 플러그인.", "모든 서술에 파일:줄 근거, 캡처 · 조작 GIF까지 HTML · PDF · PPT 로."],
+      "stack": ["Claude Code", "v1.0.0", "MIT"],
+      "install": ["/plugin marketplace add kwangtaeko/tgx-docent", "/plugin install docent@tgx-docent"]
+    },
+    {
+      "repo": "test-guard",
+      "title": "test-guard",
+      "desc": ["에이전트가 테스트를 지우거나 skip 해서 통과시키는 걸 막는다.", "에이전트 훅 · commit-msg 훅 · GitHub Action 세 곳, LLM 없이."],
+      "stack": ["Claude Code", "Codex", "Gemini CLI", "npm"],
+      "install": ["/plugin marketplace add kwangtaeko/test-guard", "/plugin install test-guard@test-guard"]
     }
   ],
   "private": [

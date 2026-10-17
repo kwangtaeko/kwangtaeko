@@ -12,6 +12,15 @@
 
 <br/>
 
+<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/section-plugins.svg?v=e6bd5073" alt="plugins — install in two lines" />
+
+<p align="center">
+  <a href="https://github.com/kwangtaeko/tgx-docent"><img width="49%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/card-plugin-tgx-docent.svg?v=b899c3ce" alt="docent — 웹앱 소스로 화면 목록 · 사용자 매뉴얼을 만드는 플러그인. 모든 서술에 파일:줄 근거, 캡처 · 조작 GIF까지 HTML · PDF · PPT 로." /></a>
+  <a href="https://github.com/kwangtaeko/test-guard"><img width="49%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/card-plugin-test-guard.svg?v=f2f3a162" alt="test-guard — 에이전트가 테스트를 지우거나 skip 해서 통과시키는 걸 막는다. 에이전트 훅 · commit-msg 훅 · GitHub Action 세 곳, LLM 없이." /></a>
+</p>
+
+<br/>
+
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/section-workflow.svg?v=f14a534b" alt="how TGX works — human decides, agents verify" />
 
 <p align="center">
@@ -25,7 +34,7 @@
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/section-private.svg?v=583cd3e7" alt="built in private — code stays home" />
 
 <p align="center">
-  <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/cards-private.svg?v=23c3045b" alt="built in private — TG Platform, TGX Agent Chatbot, TG-Nova, 시장장터, 네오뮤직, TG Launcher" />
+  <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/cards-private.svg?v=eefdb9da" alt="built in private — TG Platform, TGX Agent Chatbot, TG-Nova, 시장장터, 네오뮤직, TG Launcher" />
 </p>
 
 <p align="center"><sub>+12 more in private · 아키텍처와 설계 결정은 <a href="https://tonygwangsk.dev">tonygwangsk.dev</a> 에</sub></p>

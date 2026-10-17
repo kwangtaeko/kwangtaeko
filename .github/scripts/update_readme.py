@@ -191,6 +191,20 @@ def public_block(it: dict, r: dict, url: str) -> str:
     return f'<p align="center">\n  {img}\n</p>'
 
 
+def plugins_block(owner: str, items: list[dict], results: dict[str, dict], url_for) -> str:
+    """플러그인 카드는 저장소마다 그림 한 장 — 2장씩 한 줄, 각각 저장소 링크로 감싼다."""
+    rows = []
+    for i in range(0, len(items), 2):
+        cells = []
+        for it in items[i : i + 2]:
+            href = results.get(it["repo"], {}).get("url") or f"https://github.com/{owner}/{it['repo']}"
+            src = url_for(f"card-plugin-{it['repo']}.svg")
+            alt = f'{it["title"]} — {assets.desc_text(it)}'
+            cells.append(f'  <a href="{href}"><img width="49%" src="{src}" alt="{alt}" /></a>')
+        rows.append('<p align="center">\n' + "\n".join(cells) + "\n</p>")
+    return "\n\n".join(rows)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--offline", action="store_true", help="네트워크 없이 자리표시 값으로")
@@ -206,6 +220,13 @@ def main() -> int:
     # 공개 저장소
     results: dict[str, dict] = {}
     for it in cfg["public"]:
+        results[it["repo"]] = (
+            {"state": "missing", "stars": 0, "url": ""} if args.offline else fetch_repo(owner, it["repo"], token)
+        )
+
+    # 공개 플러그인 — 카드마다 스타 수
+    plugins = cfg.get("plugins", [])
+    for it in plugins:
         results[it["repo"]] = (
             {"state": "missing", "stars": 0, "url": ""} if args.offline else fetch_repo(owner, it["repo"], token)
         )
@@ -237,6 +258,21 @@ def main() -> int:
         lambda: assets.card_public(pub, chip or "coming soon", stars, pub.get("star_goal")),
         chip is not None,
     )
+
+    # 플러그인 카드 — 2장씩 한 줄이라 같은 줄 두 장은 높이를 맞춘다
+    for i in range(0, len(plugins), 2):
+        row = plugins[i : i + 2]
+        row_h = max(assets.plugin_card_h(it) for it in row)
+        for it in row:
+            r = results[it["repo"]]
+            chip_p = (
+                f"★ {compact(r['stars'])}" if r["state"] == "live" else "coming soon" if r["state"] == "missing" else None
+            )
+            keep_or(
+                f"card-plugin-{it['repo']}.svg",
+                lambda it=it, chip_p=chip_p, row_h=row_h: assets.card_plugin(it, chip_p or "coming soon", row_h),
+                chip_p is not None,
+            )
 
     files["cards-private.svg"] = assets.cards_private(cfg["private"])
     langs = fetch_languages(owner, cfg["private"], pat)
@@ -270,6 +306,7 @@ def main() -> int:
     out = re.sub(r"\{\{asset:([\w.-]+)\}\}", lambda m: asset_url_for(m.group(1)), tpl)
     pub = cfg["public"][0]
     out = out.replace("{{PUBLIC}}", public_block(pub, results[pub["repo"]], asset_url_for("card-public.svg")))
+    out = out.replace("{{PLUGINS}}", plugins_block(owner, plugins, results, asset_url_for))
     out = out.replace("{{MORE}}", str(cfg.get("more_private", 0)))
     header = "<!-- 이 파일은 자동 생성된다. 고칠 곳은 .github/README.template.md 와 .github/repos.json -->\n\n"
     README.write_text(header + out, encoding="utf-8")

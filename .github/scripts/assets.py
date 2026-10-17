@@ -458,6 +458,38 @@ def card_public(it: dict, chip: str, stars: int | None = None, goal: int | None 
     return _wrap(W, int(h + 1), f'{it["title"]} — {desc_text(it)}', body, plate=False)
 
 
+PLUGIN_W = 408  # 2열 — README 에서 width="49%" 두 장이 나란히 선다
+INSTALL_LH = 17
+
+
+def plugin_card_h(it: dict) -> float:
+    """설명 · 칩 아래에 설치 명령 상자가 붙는다."""
+    return _card_h(it, PLUGIN_W) + 10 + len(it.get("install") or []) * INSTALL_LH + 16
+
+
+def card_plugin(it: dict, chip: str, h: float | None = None) -> str:
+    """공개 플러그인 카드 한 장 — 저장소마다 따로 그려 각각 링크로 감싼다.
+    칩은 ★ 스타 수(모르면 coming soon). 아래에 설치 명령을 모노 상자로.
+    h 를 주면 그 높이로 그린다 — 같은 행 두 장의 높이를 맞추려고."""
+    W = PLUGIN_W
+    H = h or plugin_card_h(it)
+    body = _card(0, 0, W, H, it, chip, ORANGE, "#2a1a10", MONO)
+    lines = it.get("install") or []
+    box_h = len(lines) * INSTALL_LH + 12
+    by = H - CARD_PAD - box_h + 4
+    parts = [
+        f'<rect x="{CARD_PAD}" y="{by:.1f}" width="{W - CARD_PAD * 2}" height="{box_h}" rx="6" '
+        f'fill="{BG}" stroke="{LINE}"/>'
+    ]
+    for i, ln in enumerate(lines):
+        y = by + 18 + i * INSTALL_LH
+        parts.append(
+            f'<text x="{CARD_PAD + 12}" y="{y:.1f}" font-family="{MONO}" font-size="{CHIP}" fill="{MUTE}">'
+            f'<tspan fill="{ORANGE}">$ </tspan>{escape(ln)}</text>'
+        )
+    return _wrap(W, int(H + 1), f'{it["title"]} — {desc_text(it)}', body + "".join(parts), plate=False)
+
+
 # ── 기여 그래프 · 연속 기록 ────────────────────────────────────────
 def activity(days: list[tuple[str, int]]) -> str:
     """최근 31일 기여 꺾은선. days 는 (YYYY-MM-DD, count) 오래된 순."""
@@ -747,6 +779,7 @@ def static_assets() -> dict[str, str]:
     """매번 같은 결과가 나오는 자산."""
     return {
         "section-public.svg": section("PUBLIC", "the one to star"),
+        "section-plugins.svg": section("PLUGINS", "install in two lines"),
         "section-workflow.svg": section("HOW TGX WORKS", "human decides, agents verify"),
         "section-private.svg": section("BUILT IN PRIVATE", "code stays home", VIOLET),
         "section-graph.svg": section("COMMITS", "private ones included"),
