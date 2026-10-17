@@ -15,8 +15,8 @@
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/section-plugins.svg?v=e6bd5073" alt="plugins — install in two lines" />
 
 <p align="center">
-  <a href="https://github.com/kwangtaeko/tgx-docent"><img width="49%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/card-plugin-tgx-docent.svg?v=b899c3ce" alt="docent — 웹앱 소스로 화면 목록 · 사용자 매뉴얼을 만드는 플러그인. 모든 서술에 파일:줄 근거, 캡처 · 조작 GIF까지 HTML · PDF · PPT 로." /></a>
-  <a href="https://github.com/kwangtaeko/test-guard"><img width="49%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/card-plugin-test-guard.svg?v=f2f3a162" alt="test-guard — 에이전트가 테스트를 지우거나 skip 해서 통과시키는 걸 막는다. 에이전트 훅 · commit-msg 훅 · GitHub Action 세 곳, LLM 없이." /></a>
+  <a href="https://github.com/kwangtaeko/tgx-docent"><img width="49%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/card-plugin-tgx-docent.svg?v=e9cc9c40" alt="docent — 웹앱 소스로 화면 목록 · 사용자 매뉴얼을 만드는 플러그인. 모든 서술에 파일:줄 근거, 캡처 · 조작 GIF까지 HTML · PDF · PPT 로." /></a>
+  <a href="https://github.com/kwangtaeko/test-guard"><img width="49%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/card-plugin-test-guard.svg?v=cf4ff8ba" alt="test-guard — 에이전트가 테스트를 지우거나 skip 해서 통과시키는 걸 막는다. 에이전트 훅 · commit-msg 훅 · GitHub Action 세 곳, LLM 없이." /></a>
 </p>
 
 <br/>
@@ -34,7 +34,7 @@
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/section-private.svg?v=583cd3e7" alt="built in private — code stays home" />
 
 <p align="center">
-  <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/cards-private.svg?v=eefdb9da" alt="built in private — TG Platform, TGX Agent Chatbot, TG-Nova, 시장장터, 네오뮤직, TG Launcher" />
+  <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/cards-private.svg?v=23c3045b" alt="built in private — TG Platform, TGX Agent Chatbot, TG-Nova, 시장장터, 네오뮤직, TG Launcher" />
 </p>
 
 <p align="center"><sub>+12 more in private · 아키텍처와 설계 결정은 <a href="https://tonygwangsk.dev">tonygwangsk.dev</a> 에</sub></p>
@@ -48,18 +48,18 @@
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/section-graph.svg?v=7e6b280d" alt="commits — private ones included" />
 
 <p align="center">
-  <img height="170" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/stat-tiles.svg?v=05ead94c" alt="TGX stats" />
+  <img height="170" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/stat-tiles.svg?v=7214f249" alt="TGX stats" />
   <img height="170" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/streak.svg?v=c108c39e" alt="streak" />
 </p>
 
-<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/activity.svg?v=f06a7c38" alt="contributions in the last 31 days" />
+<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/activity.svg?v=63b8d896" alt="contributions in the last 31 days" />
 
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/languages.svg?v=f3bd8c0e" alt="languages across the private cards" />
 
-<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/weekday.svg?v=361117b7" alt="contributions by weekday over the last year" />
+<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/weekday.svg?v=efb06e30" alt="contributions by weekday over the last year" />
 
 <br/>
 
-<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/grass.svg?v=6f295fdd" alt="TGX agents verifying a year of contributions" />
+<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/grass.svg?v=b5a83066" alt="TGX agents verifying a year of contributions" />
 
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/footer.svg?v=431ac485" alt="TGX" />
