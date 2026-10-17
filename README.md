@@ -52,14 +52,14 @@
   <img height="170" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/streak.svg?v=c108c39e" alt="streak" />
 </p>
 
-<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/activity.svg?v=a9db7e69" alt="contributions in the last 31 days" />
+<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/activity.svg?v=90f8d7e7" alt="contributions in the last 31 days" />
 
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/languages.svg?v=f3bd8c0e" alt="languages across the private cards" />
 
-<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/weekday.svg?v=52ead393" alt="contributions by weekday over the last year" />
+<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/weekday.svg?v=d4d5fcec" alt="contributions by weekday over the last year" />
 
 <br/>
 
-<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/grass.svg?v=a15d3835" alt="TGX agents verifying a year of contributions" />
+<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/grass.svg?v=6a11e3e0" alt="TGX agents verifying a year of contributions" />
 
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/footer.svg?v=431ac485" alt="TGX" />
