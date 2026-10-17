@@ -12,7 +12,7 @@
   "plugins": [
     {
       "repo": "tgx-docent",
-      "title": "docent",
+      "title": "tgx-docent",
       "desc": ["웹앱 소스로 화면 목록 · 사용자 매뉴얼을 만드는 플러그인.", "모든 서술에 파일:줄 근거, 캡처 · 조작 GIF까지 HTML · PDF · PPT 로."],
       "stack": ["Claude Code", "v1.0.0", "MIT"],
       "install": ["/plugin marketplace add kwangtaeko/tgx-docent", "/plugin install docent@tgx-docent"]
@@ -21,7 +21,7 @@
       "repo": "test-guard",
       "title": "test-guard",
       "desc": ["에이전트가 테스트를 지우거나 skip 해서 통과시키는 걸 막는다.", "에이전트 훅 · commit-msg 훅 · GitHub Action 세 곳, LLM 없이."],
-      "stack": ["Claude Code", "Codex", "Gemini CLI", "npm"],
+      "stack": ["Claude Code", "Codex", "Gemini CLI", "v0.4.0", "MIT"],
       "install": ["/plugin marketplace add kwangtaeko/test-guard", "/plugin install test-guard@test-guard"]
     }
   ],
