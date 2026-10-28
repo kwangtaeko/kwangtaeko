@@ -34,17 +34,17 @@
   <img width="100%" src="{{asset:workflow.svg}}" alt="TGX workflow — a human decides; the main model (Claude Code or Codex) runs a team-leader, five execution agents and four verification agents; the other model cross-checks and reports back" />
 </p>
 
-<p align="center"><sub>에이전트 13개짜리 전체 구성도는 <a href="https://tonygwangsk.dev/projects">tonygwangsk.dev/projects</a> 의 Orchestra 에</sub></p>
+<p align="center"><sub>The full 13-agent map lives in the Orchestra at <a href="https://tonygwangsk.dev/projects">tonygwangsk.dev/projects</a></sub></p>
 
 <br/>
 
 <img width="100%" src="{{asset:section-private.svg}}" alt="built in private — code stays home" />
 
 <p align="center">
-  <img width="100%" src="{{asset:cards-private.svg}}" alt="built in private — TG Platform, TGX Agent Chatbot, TG-Nova, 시장장터, 네오뮤직, TG Launcher" />
+  <img width="100%" src="{{asset:cards-private.svg}}" alt="built in private — TG Platform, TGX Agent Chatbot, TG-Nova, Sijang Market, NeoMusiq, TG Launcher" />
 </p>
 
-<p align="center"><sub>+{{MORE}} more in private · 아키텍처와 설계 결정은 <a href="https://tonygwangsk.dev">tonygwangsk.dev</a> 에</sub></p>
+<p align="center"><sub>+{{MORE}} more in private · architecture and design decisions at <a href="https://tonygwangsk.dev">tonygwangsk.dev</a></sub></p>
 
 <p align="center">
   <a href="https://tonygwangsk.dev"><img height="34" src="{{asset:portfolio.svg}}" alt="portfolio — tonygwangsk.dev" /></a>

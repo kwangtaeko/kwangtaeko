@@ -114,6 +114,12 @@ def fetch_stats(owner: str, token: str | None) -> dict | None:
             "best": compact(max((c for _, c in days), default=0)),
             "last30": compact(sum(c for _, c in days[-30:])),
         },
+        # 같은 값의 원래 숫자 — 타일 숫자가 0 부터 세어 올라가는 모션에 쓴다
+        "raw": {
+            "contrib": cal["totalContributions"],
+            "best": max((c for _, c in days), default=0),
+            "last30": sum(c for _, c in days[-30:]),
+        },
         "days": days,
     }
 
@@ -283,8 +289,9 @@ def main() -> int:
     work = fetch_work(owner, cfg["private"], pat)
     if stats:
         stats["tiles"].update({k: compact(v) for k, v in work.items()})
+        stats["raw"].update(work)
     days = stats["days"] if stats else []
-    keep_or("stat-tiles.svg", lambda: assets.stat_tiles(stats["tiles"] if stats else {}), bool(stats))
+    keep_or("stat-tiles.svg", lambda: assets.stat_tiles(stats["tiles"] if stats else {}, stats["raw"] if stats else {}), bool(stats))
     keep_or("activity.svg", lambda: assets.activity(days), bool(stats))
     keep_or("streak.svg", lambda: assets.streak(days), bool(stats))
     keep_or("weekday.svg", lambda: assets.weekday(days), bool(stats))

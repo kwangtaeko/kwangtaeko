@@ -241,8 +241,67 @@ def portfolio_button() -> str:
     return _wrap(240, 34, "portfolio — tonygwangsk.dev", body, plate=False)
 
 
+# ── 숫자 세기 · 그려지기 ───────────────────────────────────────────
+# COMMITS 구역의 숫자와 차트는 10초마다 한 번씩 0 에서 세어 올라가고 그려진다.
+# 앞 1.5초(DRAW_T)에 움직이고 나머지는 멈춰 있다. README 의 그림은 <img> 라 JS 가
+# 없으므로 SMIL 만 쓴다. 요소의 기본 속성은 **최종 상태**로 둔다 — SMIL 을 그리지
+# 않는 곳(일부 뷰어 · 인쇄)에서도 숫자 · 막대가 다 보인 채로 나와야 한다.
+ANIM_DUR = 10
+DRAW_T = 0.15
+COUNT_STEPS = 12
+_EASE = 'calcMode="spline" keySplines=".2 .7 .2 1;0 0 1 1"'
+
+
+def _ease(t: float) -> float:
+    return 1 - (1 - t) ** 3
+
+
+def _compact(n: int) -> str:
+    if n >= 1000:
+        s = f"{n / 1000:.1f}".rstrip("0").rstrip(".")
+        return f"{s}k"
+    return str(n)
+
+
+def _grow(attr: str, start: str, end: str, delay: float = 0.0) -> str:
+    """한 주기 안에서 start → end 로 한 번 움직이고 그대로 멈춘다. delay 는 주기 비율."""
+    a = min(delay, DRAW_T * 0.6)
+    b = min(a + DRAW_T, 0.5)
+    vals, kts = f"{start};{start};{end};{end}", _kt(0, a, b, 1)
+    if a <= 0:
+        vals, kts = f"{start};{end};{end}", _kt(0, b, 1)
+        return (
+            f'<animate attributeName="{attr}" dur="{ANIM_DUR}s" repeatCount="indefinite" '
+            f'values="{vals}" keyTimes="{kts}" {_EASE}/>'
+        )
+    return (
+        f'<animate attributeName="{attr}" dur="{ANIM_DUR}s" repeatCount="indefinite" '
+        f'values="{vals}" keyTimes="{kts}" calcMode="spline" '
+        'keySplines="0 0 1 1;.2 .7 .2 1;0 0 1 1"/>'
+    )
+
+
+def _count(value: int, fmt, open_tag: str, close_tag: str = "</text>") -> str:
+    """0 → value 로 세어 올라가는 숫자. SMIL 은 글자를 바꿀 수 없어 단계마다 한 줄씩
+    겹쳐 두고 차례로 보인다(잔디의 verified 와 같은 방식). open_tag 는 '<text ...>' 로
+    끝나야 하고, 그 안에 opacity 를 직접 적지 않는다. 마지막 단계(최종 값)는 기본으로
+    보이고, 세는 구간에만 잠깐 숨는다."""
+    if value <= 0:
+        return f"{open_tag}{fmt(value)}{close_tag}"
+    times = [DRAW_T * k / COUNT_STEPS for k in range(COUNT_STEPS + 1)]
+    vals = [round(value * _ease(k / COUNT_STEPS)) for k in range(COUNT_STEPS + 1)]
+    out = []
+    for k in range(COUNT_STEPS):
+        if vals[k] == vals[-1]:
+            continue
+        tag = open_tag[:-1] + ' opacity="0">'
+        out.append(f"{tag}{fmt(vals[k])}{_visible([(times[k], times[k + 1])], ANIM_DUR)}{close_tag}")
+    out.append(f"{open_tag}{fmt(value)}{_visible([(DRAW_T, 1.0)], ANIM_DUR)}{close_tag}")
+    return "".join(out)
+
+
 # ── 통계 타일 ──────────────────────────────────────────────────────
-def stat_tiles(stats: dict[str, str]) -> str:
+def stat_tiles(stats: dict[str, str], raw: dict[str, int] | None = None) -> str:
     """네 칸. 기여 · 커밋 · PR 을 먼저 놓고, 값이 없거나 0 인 칸은 빼고 뒤의 후보로 채운다.
     값이 하나도 없으면 '—' 를 그린다(API 실패 시에도 깨지지 않게)."""
     cands = [
@@ -255,15 +314,21 @@ def stat_tiles(stats: dict[str, str]) -> str:
     picked = [(lab, stats[k]) for lab, k in cands if stats.get(k) not in (None, "", "0")][:4]
     if len(picked) < 4:
         picked = [(lab, "—") for lab, _ in cands[:4]]
+    keys = {lab: k for lab, k in cands}
+    raw = raw or {}
     tiles = [(lab, v, col) for (lab, v), col in zip(picked, [ORANGE, INK, INK, LILAC])]
     b = []
     for i, (label, value, col) in enumerate(tiles):
         x = 14 + (i % 2) * 192
         y = 14 + (i // 2) * 78
+        num = f'<text x="12" y="50" font-family="{MONO}" font-size="24" font-weight="800" fill="{col}">'
+        n = raw.get(keys[label])
+        # 원래 숫자를 알면 0 부터 세어 올라간다(10초마다). 모르면 글자 그대로
+        shown = _count(int(n), _compact, num) if isinstance(n, int) and value != "—" else f"{num}{escape(value)}</text>"
         b.append(
             f'<g transform="translate({x} {y})"><rect width="180" height="64" rx="7" fill="{CARD}"/>'
             f'<text x="12" y="22" font-family="{MONO}" font-size="10" fill="{MUTE}" letter-spacing="1">{escape(label)}</text>'
-            f'<text x="12" y="50" font-family="{MONO}" font-size="24" font-weight="800" fill="{col}">{escape(value)}</text></g>'
+            f"{shown}</g>"
         )
     return _wrap(400, 170, "TGX stats", "".join(b))
 
@@ -301,8 +366,26 @@ def text_w(s: str, size: float) -> float:
     return sum(_char_w(c, size) for c in s)
 
 
+def _sans_w(s: str, size: float) -> float:
+    """본문(산세리프)용 폭. text_w 는 칩의 모노 글자에 맞춘 값이라 영문 소문자를 넓게
+    잡는다 — 산세리프 영문은 그보다 좁아서, 그대로 쓰면 줄이 카드 2/3 지점에서 끊긴다."""
+    w = 0.0
+    for c in s:
+        if c.islower():
+            w += size * 0.49
+        elif c.isupper():
+            w += size * 0.62
+        elif c.isdigit():
+            w += size * 0.56
+        else:
+            w += _char_w(c, size)
+    return w
+
+
 def wrap(text: str, width: float, size: float) -> list[str]:
-    """공백에서 끊는다(한국어도 어절 단위 — keep-all). 한 어절이 너무 길면 그 안에서 끊는다."""
+    """공백에서 끊는다(한국어도 어절 단위 — keep-all). 한 어절이 너무 길면 그 안에서 끊는다.
+    본문 글꼴(산세리프) 폭으로 잰다."""
+    text_w = _sans_w  # noqa: N806 — 아래 계산을 그대로 두고 잣대만 바꾼다
     lines: list[str] = []
     cur = ""
     for word in text.split(" "):
@@ -340,9 +423,12 @@ def _card(
     p = []
     p.append(f'<g transform="translate({x} {y})">')
     p.append(f'<rect width="{w}" height="{h}" rx="10" fill="{CARD}" stroke="{LINE}"/>')
-    cw = len(chip) * CHIP * 0.62 + 20  # 칩 글자는 고정폭(모노)이라 글자 수로 잰다
+    tw = len(chip) * CHIP * 0.62  # 칩 글자는 고정폭(모노)이라 글자 수로 잰다
+    cw = tw + 20
+    # 켜짐 칩은 점(지름 7.6) + 간격 5 + 글자를 한 덩어리로 보고, 좌우 여백을 같게 둔다
+    dot_w, gap, pad = 7.6, 5.0, 10.0
     if live:
-        cw += 14
+        cw = pad + dot_w + gap + tw + pad
     cx0 = w - CARD_PAD - cw
     if live:
         # 켜져 있는 표시 — 칩 전체(바탕 · 테두리 · 점)가 초록으로 천천히 밝아졌다 어두워진다.
@@ -356,11 +442,12 @@ def _card(
             f'<rect x="{cx0:.1f}" y="18" width="{cw:.1f}" height="20" rx="10" fill="{live}" stroke="{live}" '
             f'fill-opacity=".1" stroke-opacity=".3"><animate attributeName="fill-opacity" values=".04;.26;.04" {anim}/>'
             f'<animate attributeName="stroke-opacity" values=".15;.9;.15" {anim}/></rect>'
-            f'<circle cx="{cx0 + 12:.1f}" cy="28" r="8" fill="{live}" opacity=".2">'
+            f'<circle cx="{cx0 + pad + dot_w / 2:.1f}" cy="28" r="8" fill="{live}" opacity=".2">'
             f'<animate attributeName="opacity" values="0;.45;0" {anim}/></circle>'
-            f'<circle cx="{cx0 + 12:.1f}" cy="28" r="3.8" fill="{live}">'
+            f'<circle cx="{cx0 + pad + dot_w / 2:.1f}" cy="28" r="3.8" fill="{live}">'
             f'<animate attributeName="opacity" values=".35;1;.35" {anim}/></circle>'
-            f'<text x="{cx0 + 21:.1f}" y="31.5" font-family="{MONO}" font-size="{CHIP}" fill="{LIVE_INK}">{escape(chip)}'
+            f'<text x="{cx0 + pad + dot_w + gap + tw / 2:.1f}" y="31.5" text-anchor="middle" font-family="{MONO}" '
+            f'font-size="{CHIP}" fill="{LIVE_INK}">{escape(chip)}'
             f'<animate attributeName="fill-opacity" values=".55;1;.55" {anim}/></text>'
         )
     else:
@@ -510,10 +597,17 @@ def activity(days: list[tuple[str, int]]) -> str:
         n = len(recent)
         pts = [(x0 + (x1 - x0) * i / (n - 1), y1 - (y1 - y0) * c / top) for i, (_, c) in enumerate(recent)]
         line = "M" + " L".join(f"{x:.1f} {y:.1f}" for x, y in pts)
-        b.append(f'<path d="{line} L{x1} {y1} L{x0} {y1} Z" fill="url(#actg)"/>')
-        b.append(f'<path d="{line}" fill="none" stroke="{ORANGE}" stroke-width="2" stroke-linejoin="round"/>')
-        for x, y in pts:
-            b.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="2.3" fill="{INK}"/>')
+        # 선은 왼쪽부터 그려지고(10초마다), 아래 면과 점은 선이 지나간 뒤 켜진다
+        b.append(f'<path d="{line} L{x1} {y1} L{x0} {y1} Z" fill="url(#actg)">{_grow("opacity", "0", "1", DRAW_T * 0.5)}</path>')
+        b.append(
+            f'<path d="{line}" fill="none" stroke="{ORANGE}" stroke-width="2" stroke-linejoin="round" '
+            f'pathLength="1" stroke-dasharray="1" stroke-dashoffset="0">{_grow("stroke-dashoffset", "1", "0")}</path>'
+        )
+        for k, (x, y) in enumerate(pts):
+            b.append(
+                f'<circle cx="{x:.1f}" cy="{y:.1f}" r="2.3" fill="{INK}">'
+                f'{_grow("opacity", "0", "1", DRAW_T * k / max(n - 1, 1) * 0.6)}</circle>'
+            )
         for idx in (0, n // 2, n - 1):
             d = recent[idx][0][5:].replace("-", ".")
             anchor = "start" if idx == 0 else "end" if idx == n - 1 else "middle"
@@ -539,16 +633,21 @@ def streak(days: list[tuple[str, int]]) -> str:
     show = (lambda v: str(v)) if days else (lambda v: "—")
     b = [
         f'<circle cx="104" cy="80" r="40" fill="none" stroke="{LINE}" stroke-width="6"/>',
+        # 고리는 10초마다 0 에서 현재 연속 일수만큼 그려진다
         f'<circle cx="104" cy="80" r="40" fill="none" stroke="{ORANGE}" stroke-width="6" stroke-linecap="round" '
-        f'stroke-dasharray="{min(cur, 30) / 30 * 251.3:.1f} 251.3" transform="rotate(-90 104 80)"/>',
-        f'<text x="104" y="90" text-anchor="middle" font-family="{MONO}" font-size="28" font-weight="800" fill="{INK}">{show(cur)}</text>',
+        f'stroke-dasharray="{min(cur, 30) / 30 * 251.3:.1f} 251.3" transform="rotate(-90 104 80)">'
+        f'{_grow("stroke-dasharray", "0 251.3", f"{min(cur, 30) / 30 * 251.3:.1f} 251.3") if cur else ""}</circle>',
+        _count(cur, str, f'<text x="104" y="90" text-anchor="middle" font-family="{MONO}" font-size="28" font-weight="800" fill="{INK}">')
+        if days
+        else f'<text x="104" y="90" text-anchor="middle" font-family="{MONO}" font-size="28" font-weight="800" fill="{INK}">—</text>',
         f'<text x="104" y="146" text-anchor="middle" font-family="{MONO}" font-size="10" fill="{ORANGE}" letter-spacing="1">CURRENT STREAK</text>',
         f'<line x1="208" y1="30" x2="208" y2="140" stroke="{LINE}"/>',
     ]
-    for k, (lab, v, col) in enumerate([("LONGEST STREAK", show(longest), LILAC), ("ACTIVE DAYS · 1Y", show(active), INK)]):
+    for k, (lab, v, col) in enumerate([("LONGEST STREAK", longest, LILAC), ("ACTIVE DAYS · 1Y", active, INK)]):
         yy = 52 + k * 62
         b.append(f'<text x="232" y="{yy}" font-family="{MONO}" font-size="10" fill="{MUTE}" letter-spacing="1">{lab}</text>')
-        b.append(f'<text x="232" y="{yy + 30}" font-family="{MONO}" font-size="24" font-weight="800" fill="{col}">{v}</text>')
+        num = f'<text x="232" y="{yy + 30}" font-family="{MONO}" font-size="24" font-weight="800" fill="{col}">'
+        b.append(_count(v, str, num) if days else f"{num}—</text>")
     return _wrap(400, 170, f"current streak {cur}, longest {longest}, active days {active}", "".join(b))
 
 
@@ -574,7 +673,12 @@ def languages(langs: dict[str, int]) -> str:
         x = float(x0)
         for k, (_, v) in enumerate(top):
             w = (x1 - x0) * v / total
-            b.append(f'<rect x="{x:.1f}" y="44" width="{max(w - 2, 0.5):.1f}" height="12" fill="{LANG_COLORS[k]}"/>')
+            # 구간마다 왼쪽부터 차례로 늘어난다(10초마다)
+            ww = max(w - 2, 0.5)
+            b.append(
+                f'<rect x="{x:.1f}" y="44" width="{ww:.1f}" height="12" fill="{LANG_COLORS[k]}">'
+                f'{_grow("width", "0", f"{ww:.1f}", DRAW_T * 0.6 * (x - x0) / (x1 - x0))}</rect>'
+            )
             x += w
         b.append("</g>")
         lx = float(x0)
@@ -607,8 +711,13 @@ def weekday(days: list[tuple[str, int]]) -> str:
         hgt = max(3.0, tall * v / top)
         col = ORANGE if v == top and v > 0 else DEEP
         op = "1" if col == ORANGE else ".55"
-        b.append(f'<rect x="{cx - bw / 2:.1f}" y="{base - hgt:.1f}" width="{bw}" height="{hgt:.1f}" rx="4" fill="{col}" fill-opacity="{op}"/>')
-        b.append(f'<text x="{cx:.1f}" y="{base - hgt - 7:.1f}" text-anchor="middle" font-family="{MONO}" font-size="10.5" fill="{INK if col == ORANGE else MUTE}">{v}</text>')
+        # 막대는 바닥에서 차례로 솟고, 위 숫자는 0 부터 센다(10초마다)
+        dl = DRAW_T * 0.08 * k
+        b.append(
+            f'<rect x="{cx - bw / 2:.1f}" y="{base - hgt:.1f}" width="{bw}" height="{hgt:.1f}" rx="4" fill="{col}" fill-opacity="{op}">'
+            f'{_grow("height", "0", f"{hgt:.1f}", dl)}{_grow("y", f"{base}", f"{base - hgt:.1f}", dl)}</rect>'
+        )
+        b.append(_count(v, str, f'<text x="{cx:.1f}" y="{base - hgt - 7:.1f}" text-anchor="middle" font-family="{MONO}" font-size="10.5" fill="{INK if col == ORANGE else MUTE}">'))
         b.append(f'<text x="{cx:.1f}" y="{base + 18}" text-anchor="middle" font-family="{MONO}" font-size="10" fill="{FAINT}" letter-spacing="1">{names[k]}</text>')
     label = "contributions by weekday — " + ", ".join(f"{n} {v}" for n, v in zip(names, sums))
     return _wrap(W, H, label, "".join(b))

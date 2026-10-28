@@ -5,7 +5,7 @@
     {
       "repo": "tgx-agent-mesh",
       "title": "tgx-agent-mesh",
-      "desc": "특정 도구에 묶이지 않는 범용 에이전트 플러그인.",
+      "desc": "A general-purpose agent plugin, not tied to any one tool.",
       "star_goal": 100
     }
   ],
@@ -13,14 +13,14 @@
     {
       "repo": "tgx-docent",
       "title": "tgx-docent",
-      "desc": ["웹앱 소스로 화면 목록 · 사용자 매뉴얼을 만드는 플러그인.", "모든 서술에 파일:줄 근거, 캡처 · 조작 GIF까지 HTML · PDF · PPT 로."],
+      "desc": ["Turns web app source into screen lists and user manuals.", "Every claim cites file:line; captures and GIFs, out to HTML · PDF · PPT."],
       "stack": ["Claude Code", "v1.0.0", "MIT"],
       "install": ["/plugin marketplace add kwangtaeko/tgx-docent", "/plugin install docent@tgx-docent"]
     },
     {
       "repo": "test-guard",
       "title": "test-guard",
-      "desc": ["에이전트가 테스트를 지우거나 skip 해서 통과시키는 걸 막는다.", "에이전트 훅 · commit-msg 훅 · GitHub Action 세 곳, LLM 없이."],
+      "desc": ["Stops agents from deleting or skipping tests to make them pass.", "Agent hook · commit-msg hook · GitHub Action — no LLM."],
       "stack": ["Claude Code", "Codex", "Gemini CLI", "v0.4.0", "MIT"],
       "install": ["/plugin marketplace add kwangtaeko/test-guard", "/plugin install test-guard@test-guard"]
     }
@@ -29,37 +29,37 @@
     {
       "title": "TG Platform",
       "repos": ["tg-platform", "tg-contract", "tgs"],
-      "desc": ["모든 TG 저장소가 따르는 백엔드 표준.", "RFC 9457 오류 계약 · traceId 로그를 Starter 하나로."],
+      "desc": ["The backend standard every TG repo follows.", "RFC 9457 error contract · traceId logs in a single starter."],
       "stack": ["Spring Boot", "RFC 9457", "ADR ×5"]
     },
     {
       "title": "TGX Agent Chatbot",
       "repos": ["tgx-agent-chatbot"],
-      "desc": ["어느 사이트에나 위젯으로 붙이는 범용 챗봇.", "로컬 LLM 위 에이전트형 RAG, 멀티 테넌트 · 가드레일."],
+      "desc": ["A general chatbot that drops into any site as a widget.", "Agentic RAG on a local LLM, multi-tenant with guardrails."],
       "stack": ["FastAPI", "LangGraph", "OpenTelemetry"]
     },
     {
       "title": "TG-Nova",
       "repos": ["TG-Nova"],
-      "desc": ["송금 · 페이 · 투자가 한 원장을 쓰는 핀테크 백엔드.", "잔액은 저장하지 않고 원장에서 도출."],
+      "desc": ["A fintech backend — transfer, pay and invest on one ledger.", "Balances are never stored — always derived from the ledger."],
       "stack": ["Kotlin", "Spring Boot", "jOOQ"]
     },
     {
-      "title": "시장장터",
+      "title": "Sijang Market",
       "repos": ["foodindustry"],
-      "desc": ["도매상과 구매업주를 잇는 B2B 마켓.", "브랜드 · 본사 · 매장 3층 멀티테넌시 + Outbox 비동기."],
+      "desc": ["A B2B market linking wholesalers and restaurant owners.", "Brand · HQ · store three-tier multi-tenancy + Outbox async."],
       "stack": ["Spring Boot", "Next.js", "Expo"]
     },
     {
-      "title": "네오뮤직",
+      "title": "NeoMusiq",
       "repos": ["neomusiq-platform"],
-      "desc": ["실용음악 학원 예약 앱.", "연습실 · 레슨 예약을 설치 없는 PWA 하나로."],
+      "desc": ["Booking app for a contemporary music academy.", "Practice rooms and lessons booked in one install-free PWA."],
       "stack": ["Next.js", "Cloudflare Workers", "Neon"]
     },
     {
       "title": "TG Launcher",
       "repos": ["tg-launcher"],
-      "desc": ["배포한 TG 사이트로 들어가는 단 하나의 문.", "구글 계정 + TOTP 2단계 인증, 통과하면 SSO."],
+      "desc": ["The single door into every deployed TG site.", "Google account + TOTP two-step auth, then SSO."],
       "stack": ["Next.js 16", "Auth.js", "TOTP"]
     }
   ],
