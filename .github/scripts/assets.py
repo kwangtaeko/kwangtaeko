@@ -248,7 +248,7 @@ def portfolio_button() -> str:
 # 않는 곳(일부 뷰어 · 인쇄)에서도 숫자 · 막대가 다 보인 채로 나와야 한다.
 ANIM_DUR = 10
 DRAW_T = 0.15
-COUNT_STEPS = 12
+COUNT_STEPS = 24  # 1.5초에 24단계 — 끊김 없이 부드럽게 보이는 정도
 _EASE = 'calcMode="spline" keySplines=".2 .7 .2 1;0 0 1 1"'
 
 
