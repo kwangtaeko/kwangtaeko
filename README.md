@@ -48,18 +48,18 @@
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/section-graph.svg?v=7e6b280d" alt="commits — private ones included" />
 
 <p align="center">
-  <img height="170" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/stat-tiles.svg?v=c0f3ff84" alt="TGX stats" />
-  <img height="170" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/streak.svg?v=bb6b6528" alt="streak" />
+  <img height="170" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/stat-tiles.svg?v=cdb85e15" alt="TGX stats" />
+  <img height="170" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/streak.svg?v=14cbccb2" alt="streak" />
 </p>
 
-<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/activity.svg?v=28bea1d8" alt="contributions in the last 31 days" />
+<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/activity.svg?v=300c5085" alt="contributions in the last 31 days" />
 
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/languages.svg?v=d7212b8e" alt="languages across the private cards" />
 
-<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/weekday.svg?v=1175a3b5" alt="contributions by weekday over the last year" />
+<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/weekday.svg?v=b49a9566" alt="contributions by weekday over the last year" />
 
 <br/>
 
-<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/grass.svg?v=1e834849" alt="TGX agents verifying a year of contributions" />
+<img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/grass.svg?v=d5f25c3c" alt="TGX agents verifying a year of contributions" />
 
 <img width="100%" src="https://raw.githubusercontent.com/kwangtaeko/kwangtaeko/main/assets/footer.svg?v=431ac485" alt="TGX" />
